@@ -104,11 +104,13 @@ public class MainActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
+
                     break;
 
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
+
                     break;
 
                 // Most likely auth flow was cancelled
