@@ -3,6 +3,7 @@ package com.example.musicdiary;
 // Code referenced from: https://developer.spotify.com/documentation/android/tutorials/getting-started
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -26,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
-    private static final int REQUEST_CODE = 1337;
     private SpotifyAppRemote mSpotifyAppRemote;
+    public static String accessToken;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setScopes(new String[]{"streaming"});
         AuthorizationRequest request = builder.build();
 
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+        AuthorizationClient.openLoginInBrowser(this, request);
     }
 
     @Override
@@ -92,27 +93,24 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
 
-        // Check if result comes from the correct activity
-        if (requestCode == REQUEST_CODE) {
-            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
+        Uri uri = intent.getData();
+        if (uri != null) {
+            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
 
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
-                    // Handle successful response
+
+                    accessToken = response.getAccessToken();
 
                     break;
-
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
-
                     break;
-
                 // Most likely auth flow was cancelled
                 default:
                     // Handle other cases
@@ -122,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void OnClickToEntry(View view){
         Intent intent = new Intent(this, SingleEntryActivity.class);
+        startActivity(intent);
+    }
+
+    public void startSearchMusicActivity(View view) {
+        Intent intent = new Intent(this, SearchMusicActivity.class);
         startActivity(intent);
     }
 }
