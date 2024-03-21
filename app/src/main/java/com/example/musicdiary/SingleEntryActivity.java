@@ -19,6 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -37,6 +39,10 @@ public class SingleEntryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_entry);
 
         client = new OkHttpClient();
+
+    }
+
+    public void updateEntryData() {
         Request request = new Request.Builder().url(sampleURL).addHeader("Authorization", "Bearer " + "accessToken").build();
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -54,6 +60,28 @@ public class SingleEntryActivity extends AppCompatActivity {
                             String jsonData = response.body().string();
                             JSONObject trackObject = new JSONObject(jsonData);
                             JSONArray itemsArray = trackObject.getJSONArray("items");
+
+                            if (itemsArray.length() > 0) {
+                                JSONObject firstItem = itemsArray.getJSONObject(0);
+                                String trackName = firstItem.getString("name");
+                                JSONObject album = firstItem.getJSONObject("album");
+                                String albumName = album.getString("name");
+                                JSONArray imagesArray = album.getJSONArray("images");
+                                if (imagesArray.length() > 0) {
+                                    JSONObject firstImage = imagesArray.getJSONObject(0);
+                                    String imageUrl = firstImage.getString("url");
+                                }
+
+                                JSONArray artistsArray = firstItem.getJSONArray("artists");
+                                List<String> artistsList = new ArrayList<>();
+                                if (artistsArray.length() > 0) {
+                                    for (int i = 0; i < artistsArray.length(); i++) {
+                                        JSONObject artistObject = artistsArray.getJSONObject(i);
+                                        String artistName = artistObject.getString("name");
+                                        artistsList.add(artistName);
+                                    }
+                                }
+                            }
                         } catch (JSONException | IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -61,7 +89,9 @@ public class SingleEntryActivity extends AppCompatActivity {
                 });
             }
         });
+
     }
+
 
     public void onClickUpdateEntry(View view) {
             onCreateDialog().show();
@@ -89,7 +119,7 @@ public class SingleEntryActivity extends AppCompatActivity {
 
 
                 if (!newTrack.isEmpty() && !newArtist.isEmpty() && !newTextPost.isEmpty()) {
-                    //TODO:update single_entry UI
+                    //TODO:get track data and update UI
                 } else {
                     Toast.makeText(SingleEntryActivity.this, "Information missed", Toast.LENGTH_SHORT).show();
                 }
@@ -105,4 +135,6 @@ public class SingleEntryActivity extends AppCompatActivity {
         return builder.create();
 
     }
+
+
 }
