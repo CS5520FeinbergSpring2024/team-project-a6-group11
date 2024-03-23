@@ -18,16 +18,12 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.protocol.types.Track;
-import com.spotify.sdk.android.auth.AuthorizationClient;
-import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
-
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
-    private SpotifyAppRemote mSpotifyAppRemote;
+    private SpotifyAppRemote mSpotifyAppRemote = null;
     public static String accessToken;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 return;
             }
+        }
+
+        if (mSpotifyAppRemote != null && mSpotifyAppRemote.isConnected()) {
+            connected();
+
+            return;
         }
 
         ConnectionParams connectionParams =
@@ -106,14 +108,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        AuthorizationRequest.Builder builder =
-                new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-
-        builder.setScopes(new String[]{"streaming"});
-        AuthorizationRequest request = builder.build();
-
-        AuthorizationClient.openLoginInBrowser(this, request);
     }
 
     @Override
