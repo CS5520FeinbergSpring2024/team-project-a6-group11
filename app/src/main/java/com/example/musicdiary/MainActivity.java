@@ -22,6 +22,8 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
                                 "Please install it in order to use this application!\n\n" +
                                 "This application will now close.")
                         .setPositiveButton("Ok", (dialog, which) -> System.exit(0))
+                        .setCancelable(false)
                         .show();
                 return;
             }
@@ -69,10 +72,30 @@ public class MainActivity extends AppCompatActivity {
                         connected();
                     }
 
+                    // Something went wrong when attempting to connect! Handle errors here
                     public void onFailure(Throwable throwable) {
-                        Log.e("MyActivity", throwable.getMessage(), throwable);
+                        if (throwable instanceof com.spotify.android.appremote.api.error.NotLoggedInException)
+                        {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Not logged into Spotify!")
+                                    .setMessage("This application requires you to be logged into Spotify!\n\n" +
+                                            "Please log into Spotify in order to use this application!")
+                                    .setPositiveButton("Open Spotify", (dialog, which) -> {
+                                        // We already checked that the user has the Spotify application installed above
+                                        Intent intent = getPackageManager().getLaunchIntentForPackage("com.spotify.music");
+                                        startActivity(intent);
+                                    })
+                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
+                                    .setCancelable(false)
+                                    .show();
+                            return;
+                        }
 
-                        // Something went wrong when attempting to connect! Handle errors here
+                        // Unhandled
+                        String message = throwable.getMessage();
+                        if (message != null) {
+                            Log.d("MainActivity", Objects.requireNonNull(throwable.getMessage()));
+                        }
                     }
                 });
 
