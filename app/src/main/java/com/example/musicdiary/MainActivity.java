@@ -74,12 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // Something went wrong when attempting to connect! Handle errors here
                     public void onFailure(Throwable throwable) {
-                        if (throwable instanceof com.spotify.android.appremote.api.error.NotLoggedInException)
-                        {
+                        if (throwable instanceof com.spotify.android.appremote.api.error.NotLoggedInException) {
                             new AlertDialog.Builder(MainActivity.this)
                                     .setTitle("Not logged into Spotify!")
-                                    .setMessage("This application requires you to be logged into Spotify!\n\n" +
-                                            "Please log into Spotify in order to use this application!")
+                                    .setMessage("This application requires you to be logged into Spotify!")
                                     .setPositiveButton("Open Spotify", (dialog, which) -> {
                                         // We already checked that the user has the Spotify application installed above
                                         Intent intent = getPackageManager().getLaunchIntentForPackage("com.spotify.music");
@@ -89,12 +87,20 @@ public class MainActivity extends AppCompatActivity {
                                     .setCancelable(false)
                                     .show();
                             return;
+                        } else if (throwable instanceof com.spotify.android.appremote.api.error.UserNotAuthorizedException) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Insufficient Permission!")
+                                    .setMessage("You must allow Spotify to let us access your music choices!")
+                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
+                                    .setCancelable(false)
+                                    .show();
+                            return;
                         }
 
                         // Unhandled
                         String message = throwable.getMessage();
                         if (message != null) {
-                            Log.d("MainActivity", Objects.requireNonNull(throwable.getMessage()));
+                            Log.d("MainActivity", message);
                         }
                     }
                 });
@@ -139,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
-
                     accessToken = response.getAccessToken();
 
                     break;

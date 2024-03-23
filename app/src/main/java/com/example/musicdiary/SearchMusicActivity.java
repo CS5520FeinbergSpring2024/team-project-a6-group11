@@ -41,7 +41,6 @@ public class SearchMusicActivity extends AppCompatActivity {
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
-
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
