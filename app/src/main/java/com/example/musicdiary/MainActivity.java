@@ -2,29 +2,27 @@ package com.example.musicdiary;
 
 // Code referenced from: https://developer.spotify.com/documentation/android/tutorials/getting-started
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
@@ -38,6 +36,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        {
+            PackageManager packageManager = this.getPackageManager();
+            try {
+                packageManager.getPackageInfo("com.spotify.music", 0);
+            } catch (PackageManager.NameNotFoundException nameNotFoundException) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Spotify is not installed!")
+                        .setMessage("This application requires Spotify to be installed on your phone! " +
+                                "Please install it in order to use this application!\n\n" +
+                                "This application will now close.")
+                        .setPositiveButton("Ok", (dialog, which) -> System.exit(0))
+                        .show();
+                return;
+            }
+        }
+
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
@@ -46,14 +61,12 @@ public class MainActivity extends AppCompatActivity {
 
         SpotifyAppRemote.connect(this, connectionParams,
                 new Connector.ConnectionListener() {
-
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("MainActivity", "Connected! Yay!");
 
                         // Now you can start interacting with App Remote
                         connected();
-
                     }
 
                     public void onFailure(Throwable throwable) {
