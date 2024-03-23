@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                                     .setNegativeButton("Close", (dialog, which) -> System.exit(0))
                                     .setCancelable(false)
                                     .show();
+
                             return;
                         } else if (throwable instanceof com.spotify.android.appremote.api.error.UserNotAuthorizedException) {
                             new AlertDialog.Builder(MainActivity.this)
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                                     .setNegativeButton("Close", (dialog, which) -> System.exit(0))
                                     .setCancelable(false)
                                     .show();
+
                             return;
                         }
 

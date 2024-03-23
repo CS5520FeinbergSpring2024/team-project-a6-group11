@@ -3,7 +3,14 @@ package com.example.musicdiary;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +25,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class SearchMusicActivity extends AppCompatActivity {
-
+    private EditText editTextPlaylistId;
     private String accessToken;
     private OkHttpClient client;
 
@@ -30,9 +37,38 @@ public class SearchMusicActivity extends AppCompatActivity {
         accessToken = MainActivity.accessToken;
         client = new OkHttpClient();
 
-        System.out.println(accessToken);
+        editTextPlaylistId = findViewById(R.id.editTextPlaylistId);
+        editTextPlaylistId.setOnKeyListener(this::onClickEditTextPlaylistId);
+        Button buttonSearchForPlaylist = findViewById(R.id.buttonPlaylistSearch);
+        buttonSearchForPlaylist.setOnClickListener(view -> onClickSearchForPlaylist());
 
-        getPlaylistData("3cEYpjA9oz9GiPac4AsH4n");
+        System.out.println(accessToken);
+    }
+
+    private boolean onClickEditTextPlaylistId(View view, int keyCode, KeyEvent keyEvent) {
+        if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+            // 3cEYpjA9oz9GiPac4AsH4n
+            InputMethodManager inputMethodManager = (InputMethodManager)getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(editTextPlaylistId.getWindowToken(), 0);
+
+            editTextPlaylistId.clearFocus();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void onClickSearchForPlaylist() {
+        String playlistId = editTextPlaylistId.getText().toString();
+        if (playlistId.equals("")) {
+            Toast toast = Toast.makeText(this, "Please enter a playlist id to search for!", Toast.LENGTH_SHORT);
+            toast.show();
+
+            return;
+        }
+
+        getPlaylistData(playlistId);
     }
 
     private void getPlaylistData(String playlistID) {
