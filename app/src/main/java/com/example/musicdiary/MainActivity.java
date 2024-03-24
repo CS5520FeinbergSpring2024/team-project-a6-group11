@@ -18,6 +18,8 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.protocol.types.Track;
+import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
             connected();
 
             return;
+        } else { // ensure the user is logged in before using the app
+            AuthorizationRequest.Builder builder =
+                    new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+
+            builder.setScopes(new String[]{"streaming"});
+            AuthorizationRequest request = builder.build();
+
+            AuthorizationClient.openLoginInBrowser(this, request);
         }
 
         ConnectionParams connectionParams =

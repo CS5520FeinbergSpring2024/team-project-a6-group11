@@ -2,6 +2,8 @@ package com.example.musicdiary;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -28,6 +31,8 @@ public class SearchMusicActivity extends AppCompatActivity {
     private EditText editTextPlaylistId;
     private String accessToken;
     private OkHttpClient client;
+    private FragmentManager fragmentManager;
+    private ArrayList<TrackItem> searchResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +47,8 @@ public class SearchMusicActivity extends AppCompatActivity {
         Button buttonSearchForPlaylist = findViewById(R.id.buttonPlaylistSearch);
         buttonSearchForPlaylist.setOnClickListener(view -> onClickSearchForPlaylist());
 
-        System.out.println(accessToken);
+        fragmentManager = getSupportFragmentManager();
+        searchResults = new ArrayList<>();
     }
 
     private boolean onClickEditTextPlaylistId(View view, int keyCode, KeyEvent keyEvent) {
@@ -92,14 +98,22 @@ public class SearchMusicActivity extends AppCompatActivity {
                             String trackName = track.getString("name");
                             JSONArray trackArtists = track.getJSONArray("artists");
 
-                            System.out.println("Track name: " + trackName);
+                            StringBuilder artists = new StringBuilder();
 
                             for (int j = 0; j < trackArtists.length(); j++) {
                                 JSONObject artist = trackArtists.getJSONObject(j);
                                 String artistName = artist.getString("name");
-                                System.out.println("Track artist: " + artistName);
+                                artists.append(artistName).append(", ");
                             }
+
+                            searchResults.add(new TrackItem(trackName, artists.toString()));
                         }
+
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        TracklistFragment tracklistFragment = TracklistFragment.newInstance(searchResults);
+                        transaction.replace(R.id.fragmentContainerView, tracklistFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
