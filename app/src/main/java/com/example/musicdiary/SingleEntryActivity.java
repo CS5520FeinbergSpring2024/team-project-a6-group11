@@ -8,11 +8,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +38,10 @@ import okhttp3.Response;
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
     private String baseSearchURL = "https://api.spotify.com/v1/search";
+    ImageButton albumImageView;
+    TextView trackNameTextView;
+    TextView artistTextView;
+    TextView extraTextView;
     private static final String ACCESS_TOKEN = MainActivity.accessToken;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
@@ -42,16 +51,21 @@ public class SingleEntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_entry);
 
+        albumImageView = findViewById(R.id.albumCoverButton);
+        trackNameTextView = findViewById(R.id.trackTitleTextView);
+        artistTextView = findViewById(R.id.artistTextView);
+        extraTextView = findViewById(R.id.postText);
+
         client = new OkHttpClient();
 
     }
 
-    public void updateEntryData(String newTrack, String newArtist) {
+    public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
         String apiURL = null;
         try {
             String trackEncoded = URLEncoder.encode(newTrack, "UTF-8");
             String artistEncoded = URLEncoder.encode(newArtist, "UTF-8");
-            String query = "track:" + trackEncoded + "%20artist:" + artistEncoded;
+            String query = "track:" + trackEncoded + " artist:" + artistEncoded;
             apiURL = baseSearchURL + "?q=" + query + "&type=track&market=US&limit=1";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -72,28 +86,44 @@ public class SingleEntryActivity extends AppCompatActivity {
                         Log.d("SingleEntry","run on uni thread");
                         try {
                             String jsonData = response.body().string();
-                            JSONObject trackObject = new JSONObject(jsonData);
-                            JSONArray itemsArray = trackObject.getJSONArray("items");
+                            JSONObject resposneObject = new JSONObject(jsonData);
+                            Log.d("SingleEntry", "JSON Data: " + jsonData);
+                            JSONObject tracksObject = resposneObject.getJSONObject("tracks");
+                            JSONArray itemsArray = tracksObject.getJSONArray("items");
+
 
                             if (itemsArray.length() > 0) {
                                 JSONObject firstItem = itemsArray.getJSONObject(0);
                                 String trackName = firstItem.getString("name");
+                                Log.d("SingleEntry", "Track Name: " + trackName);
+                                trackNameTextView.setText(trackName);
+
                                 JSONObject album = firstItem.getJSONObject("album");
-                                String albumName = album.getString("name");
                                 JSONArray imagesArray = album.getJSONArray("images");
                                 if (imagesArray.length() > 0) {
                                     JSONObject firstImage = imagesArray.getJSONObject(0);
                                     String imageUrl = firstImage.getString("url");
+                                    Log.d("SingleEntry", "Image URL: " + imageUrl);
+                                    Picasso.get().load(imageUrl).into(albumImageView);
                                 }
 
                                 JSONArray artistsArray = firstItem.getJSONArray("artists");
-                                List<String> artistsList = new ArrayList<>();
+//
                                 if (artistsArray.length() > 0) {
+                                    StringBuilder concatenatedArtists = new StringBuilder();
                                     for (int i = 0; i < artistsArray.length(); i++) {
                                         JSONObject artistObject = artistsArray.getJSONObject(i);
                                         String artistName = artistObject.getString("name");
-                                        artistsList.add(artistName);
+
+                                        concatenatedArtists.append(artistName);
+                                        if (i < artistsArray.length() - 1) {
+                                            concatenatedArtists.append(", ");
+                                        }
+                                        Log.d("SingleEntry", "Artist Name: " + artistName);
+
                                     }
+                                    String allArtists = concatenatedArtists.toString();
+                                    artistTextView.setText(allArtists);
                                 }
                             } else {
                                 Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
@@ -101,6 +131,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                         } catch (JSONException | IOException e) {
                             throw new RuntimeException(e);
                         }
+                        extraTextView.setText(newTextPost);
                     }
                 });
             }
@@ -134,10 +165,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                 String newTextPost = textPostEditText.getText().toString().trim();
 
 
-                if (!newTrack.isEmpty() && !newArtist.isEmpty() && !newTextPost.isEmpty()) {
-                    updateEntryData(newTrack, newArtist);
+                if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
+                    updateEntryData(newTrack, newArtist, newTextPost);
                 } else {
-                    Toast.makeText(SingleEntryActivity.this, "Information missed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SingleEntryActivity.this, "PLease enter track name and artist name", Toast.LENGTH_SHORT).show();
                 }
             }
         });

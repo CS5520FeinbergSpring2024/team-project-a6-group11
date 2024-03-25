@@ -18,18 +18,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.050000012" />
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/titleTextView"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Feeling good today."-->
-    <!--        android:textSize="24sp"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        app:layout_constraintVertical_bias="0.05" />-->
-
     <TextView
         android:id="@+id/dateTextView"
         android:layout_width="wrap_content"
@@ -44,16 +32,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-
-
     <ImageButton
         android:id="@+id/albumCoverButton"
         android:layout_width="282dp"
         android:layout_height="299dp"
         android:layout_marginTop="72dp"
+        android:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.573"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dateTextView"
         app:srcCompat="@android:drawable/ic_media_play" />
@@ -62,22 +48,23 @@
         android:id="@+id/trackTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Diamonds"
+        android:text="Track name"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintVertical_bias="0.65999997" />
 
     <TextView
-        android:id="@+id/artistAlbumTextView"
+        android:id="@+id/artistTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Rihanna - Unapologetic"
+        android:text="Artist"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.69" />
@@ -86,6 +73,7 @@
         android:id="@+id/cardView7"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -94,12 +82,12 @@
         app:layout_constraintVertical_bias="0.8">
 
         <TextView
-            android:id="@+id/textView10"
+            android:id="@+id/postText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="2/21/24: Today was a good day. I spent a relaxing Wednesday spending time with my family."
-            app:layout_constraintTop_toBottomOf=""/>
+            android:text="Anything wanna say?"
+            app:layout_constraintTop_toBottomOf="@id/artistTextView" />
 
     </androidx.cardview.widget.CardView>
 
@@ -109,7 +97,7 @@
         android:id="@+id/updateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Update your day"
+        android:text="Edit"
         android:onClick="onClickUpdateEntry"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -48,5 +48,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.browser:browser:1.8.0")
+    implementation ("com.squareup.picasso:picasso:2.8")
 
 }
