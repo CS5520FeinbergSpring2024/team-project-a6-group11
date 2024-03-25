@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
                                     .setNegativeButton("Close", (dialog, which) -> System.exit(0))
                                     .setCancelable(false)
                                     .show();
-
-                            return;
                         }
 
                         // Unhandled

@@ -19,6 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +32,10 @@ import okhttp3.Response;
 
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
-    String searchBaseURL = "https://api.spotify.com/v1/search";
-    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%3AHikaru%2520Utada&type=track&market=US";
+    private String baseSearchURL = "https://api.spotify.com/v1/search";
+    private static final String ACCESS_TOKEN = MainActivity.accessToken;
+
+//    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +46,18 @@ public class SingleEntryActivity extends AppCompatActivity {
 
     }
 
-    public void updateEntryData() {
-        Request request = new Request.Builder().url(sampleURL).addHeader("Authorization", "Bearer " + "accessToken").build();
+    public void updateEntryData(String newTrack, String newArtist) {
+        String apiURL = null;
+        try {
+            String trackEncoded = URLEncoder.encode(newTrack, "UTF-8");
+            String artistEncoded = URLEncoder.encode(newArtist, "UTF-8");
+            String query = "track:" + trackEncoded + "%20artist:" + artistEncoded;
+            apiURL = baseSearchURL + "?q=" + query + "&type=track&market=US&limit=1";
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Request request = new Request.Builder().url(apiURL).addHeader("Authorization", "Bearer " + ACCESS_TOKEN).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -81,6 +95,8 @@ public class SingleEntryActivity extends AppCompatActivity {
                                         artistsList.add(artistName);
                                     }
                                 }
+                            } else {
+                                Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException | IOException e) {
                             throw new RuntimeException(e);
@@ -97,7 +113,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             onCreateDialog().show();
     }
 
-    private Dialog onCreateDialog(){
+    public Dialog onCreateDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Edit Entry");
 
@@ -119,7 +135,7 @@ public class SingleEntryActivity extends AppCompatActivity {
 
 
                 if (!newTrack.isEmpty() && !newArtist.isEmpty() && !newTextPost.isEmpty()) {
-                    //TODO:get track data and update UI
+                    updateEntryData(newTrack, newArtist);
                 } else {
                     Toast.makeText(SingleEntryActivity.this, "Information missed", Toast.LENGTH_SHORT).show();
                 }
