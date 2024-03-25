@@ -101,12 +101,12 @@ public class MainActivity extends AppCompatActivity {
 
                             return;
                         } else if (throwable instanceof com.spotify.android.appremote.api.error.UserNotAuthorizedException) {
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Insufficient Permission!")
-                                    .setMessage("You must allow Spotify to let us access your music choices!")
-                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
-                                    .setCancelable(false)
-                                    .show();
+//                            new AlertDialog.Builder(MainActivity.this)
+//                                    .setTitle("Insufficient Permission!")
+//                                    .setMessage("You must allow Spotify to let us access your music choices!")
+//                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
+//                                    .setCancelable(false)
+//                                    .show();
                         }
 
                         // Unhandled
