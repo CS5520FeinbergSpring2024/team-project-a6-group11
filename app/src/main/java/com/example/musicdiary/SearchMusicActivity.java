@@ -53,7 +53,6 @@ public class SearchMusicActivity extends AppCompatActivity {
 
     private boolean onClickEditTextPlaylistId(View view, int keyCode, KeyEvent keyEvent) {
         if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            // 3cEYpjA9oz9GiPac4AsH4n
             InputMethodManager inputMethodManager = (InputMethodManager)getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(editTextPlaylistId.getWindowToken(), 0);
 
@@ -77,6 +76,7 @@ public class SearchMusicActivity extends AppCompatActivity {
         getPlaylistData(playlistId);
     }
 
+    // 3cEYpjA9oz9GiPac4AsH4n
     private void getPlaylistData(String playlistID) {
         Request request = new Request.Builder().url("https://api.spotify.com/v1/playlists/" + playlistID)
                 .addHeader("Authorization", "Bearer " + accessToken)
@@ -115,8 +115,11 @@ public class SearchMusicActivity extends AppCompatActivity {
                         transaction.addToBackStack(null);
                         transaction.commit();
                     }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                } catch (JSONException jsonException) {
+                    runOnUiThread(() -> {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Please ensure that the playlist id that you entered is valid!", Toast.LENGTH_LONG);
+                        toast.show();
+                    });
                 }
             }
 
