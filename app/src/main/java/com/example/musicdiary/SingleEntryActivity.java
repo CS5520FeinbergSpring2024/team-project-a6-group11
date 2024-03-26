@@ -2,14 +2,11 @@ package com.example.musicdiary;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +23,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -79,66 +74,65 @@ public class SingleEntryActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("SingleEntry","run on uni thread");
-                        try {
-                            String jsonData = response.body().string();
-                            JSONObject resposneObject = new JSONObject(jsonData);
-                            Log.d("SingleEntry", "JSON Data: " + jsonData);
-                            JSONObject tracksObject = resposneObject.getJSONObject("tracks");
-                            JSONArray itemsArray = tracksObject.getJSONArray("items");
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                runOnUiThread(() -> {
+                    Log.d("SingleEntry","run on uni thread");
+                    try {
+                        String jsonData = response.body().string();
+                        JSONObject resposneObject = new JSONObject(jsonData);
+                        Log.d("SingleEntry", "JSON Data: " + jsonData);
+                        JSONObject tracksObject = resposneObject.getJSONObject("tracks");
+                        JSONArray itemsArray = tracksObject.getJSONArray("items");
 
+                        if (itemsArray.length() > 0) {
+                            JSONObject firstItem = itemsArray.getJSONObject(0);
+                            String trackName = firstItem.getString("name");
+                            Log.d("SingleEntry", "Track Name: " + trackName);
+                            trackNameTextView.setText(trackName);
 
-                            if (itemsArray.length() > 0) {
-                                JSONObject firstItem = itemsArray.getJSONObject(0);
-                                String trackName = firstItem.getString("name");
-                                Log.d("SingleEntry", "Track Name: " + trackName);
-                                trackNameTextView.setText(trackName);
-
-                                JSONObject album = firstItem.getJSONObject("album");
-                                JSONArray imagesArray = album.getJSONArray("images");
-                                if (imagesArray.length() > 0) {
-                                    JSONObject firstImage = imagesArray.getJSONObject(0);
-                                    String imageUrl = firstImage.getString("url");
-                                    Log.d("SingleEntry", "Image URL: " + imageUrl);
-                                    Picasso.get().load(imageUrl).into(albumImageView);
-                                }
-
-                                JSONArray artistsArray = firstItem.getJSONArray("artists");
-//
-                                if (artistsArray.length() > 0) {
-                                    StringBuilder concatenatedArtists = new StringBuilder();
-                                    for (int i = 0; i < artistsArray.length(); i++) {
-                                        JSONObject artistObject = artistsArray.getJSONObject(i);
-                                        String artistName = artistObject.getString("name");
-
-                                        concatenatedArtists.append(artistName);
-                                        if (i < artistsArray.length() - 1) {
-                                            concatenatedArtists.append(", ");
-                                        }
-                                        Log.d("SingleEntry", "Artist Name: " + artistName);
-
-                                    }
-                                    String allArtists = concatenatedArtists.toString();
-                                    artistTextView.setText(allArtists);
-                                }
-                            } else {
-                                Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
+                            JSONObject album = firstItem.getJSONObject("album");
+                            JSONArray imagesArray = album.getJSONArray("images");
+                            if (imagesArray.length() > 0) {
+                                JSONObject firstImage = imagesArray.getJSONObject(0);
+                                String imageUrl = firstImage.getString("url");
+                                Log.d("SingleEntry", "Image URL: " + imageUrl);
+                                Picasso.get().load(imageUrl).into(albumImageView);
                             }
-                        } catch (JSONException | IOException e) {
-                            throw new RuntimeException(e);
+
+                            JSONArray artistsArray = firstItem.getJSONArray("artists");
+//
+                            if (artistsArray.length() > 0) {
+                                StringBuilder concatenatedArtists = new StringBuilder();
+                                for (int i = 0; i < artistsArray.length(); i++) {
+                                    JSONObject artistObject = artistsArray.getJSONObject(i);
+                                    String artistName = artistObject.getString("name");
+
+                                    concatenatedArtists.append(artistName);
+                                    if (i < artistsArray.length() - 1) {
+                                        concatenatedArtists.append(", ");
+                                    }
+                                    Log.d("SingleEntry", "Artist Name: " + artistName);
+
+                                }
+                                String allArtists = concatenatedArtists.toString();
+                                artistTextView.setText(allArtists);
+                            }
+                        } else {
+                            Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                         }
-                        extraTextView.setText(newTextPost);
+                    } catch (JSONException | IOException exception) {
+                        runOnUiThread(() -> {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Failed to update the playlist information!", Toast.LENGTH_SHORT);
+                            toast.show();
+                        });
+
+                        return;
                     }
+                    extraTextView.setText(newTextPost);
                 });
             }
         });
-
     }
-
 
     public void onClickUpdateEntry(View view) {
             onCreateDialog().show();
@@ -156,32 +150,21 @@ public class SingleEntryActivity extends AppCompatActivity {
 //        EditText albumEditText = view.findViewById(R.id.albumEditText);
         EditText textPostEditText = view.findViewById(R.id.textPostEditText);
 
-        builder.setPositiveButton("Update Entry", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                String newTrack = trackEditText.getText().toString().trim();
-                String newArtist = artistEditText.getText().toString().trim();
+        builder.setPositiveButton("Update Entry", (dialog, id) -> {
+            String newTrack = trackEditText.getText().toString().trim();
+            String newArtist = artistEditText.getText().toString().trim();
 //                String newAlbum = albumEditText.getText().toString().trim();
-                String newTextPost = textPostEditText.getText().toString().trim();
+            String newTextPost = textPostEditText.getText().toString().trim();
 
-
-                if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
-                    updateEntryData(newTrack, newArtist, newTextPost);
-                } else {
-                    Toast.makeText(SingleEntryActivity.this, "PLease enter track name and artist name", Toast.LENGTH_SHORT).show();
-                }
+            if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
+                updateEntryData(newTrack, newArtist, newTextPost);
+            } else {
+                Toast.makeText(SingleEntryActivity.this, "PLease enter track name and artist name", Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
 
         return builder.create();
-
     }
-
-
 }
