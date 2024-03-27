@@ -34,7 +34,6 @@ import okhttp3.Response;
 
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
-    private String baseSearchURL = "https://api.spotify.com/v1/search";
     TextView dateTextView;
     ImageButton albumImageView;
     TextView trackNameTextView;
@@ -63,12 +62,13 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
-        String apiURL = null;
+        String apiURL = "https://api.spotify.com/v1/search";
         try {
             String trackEncoded = URLEncoder.encode(newTrack, "UTF-8");
             String artistEncoded = URLEncoder.encode(newArtist, "UTF-8");
             String query = "track:" + trackEncoded + " artist:" + artistEncoded;
-            apiURL = baseSearchURL + "?q=" + query + "&type=track&market=US&limit=1";
+
+            apiURL += "?q=" + query + "&type=track&market=US&limit=1";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
