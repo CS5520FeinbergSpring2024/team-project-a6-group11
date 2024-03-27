@@ -53,7 +53,7 @@ public class SearchMusicActivity extends AppCompatActivity {
 
     private boolean onClickEditTextPlaylistId(View view, int keyCode, KeyEvent keyEvent) {
         if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            InputMethodManager inputMethodManager = (InputMethodManager)getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager inputMethodManager = (InputMethodManager) getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(editTextPlaylistId.getWindowToken(), 0);
 
             editTextPlaylistId.clearFocus();
@@ -90,30 +90,9 @@ public class SearchMusicActivity extends AppCompatActivity {
                         String responseString = response.body().string();
                         JSONObject playlistData = new JSONObject(responseString);
                         JSONObject tracks = playlistData.getJSONObject("tracks");
-                        JSONArray items = tracks.getJSONArray("items");
+                        searchResults = parseTracks(tracks);
 
-                        for (int i = 0; i < items.length(); i++) {
-                            JSONObject item = items.getJSONObject(i);
-                            JSONObject track = item.getJSONObject("track");
-                            String trackName = track.getString("name");
-                            JSONArray trackArtists = track.getJSONArray("artists");
-
-                            StringBuilder artists = new StringBuilder();
-
-                            for (int j = 0; j < trackArtists.length(); j++) {
-                                JSONObject artist = trackArtists.getJSONObject(j);
-                                String artistName = artist.getString("name");
-                                artists.append(artistName).append(", ");
-                            }
-
-                            searchResults.add(new TrackItem(trackName, artists.toString()));
-                        }
-
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
-                        TracklistFragment tracklistFragment = TracklistFragment.newInstance(searchResults);
-                        transaction.replace(R.id.fragmentContainerView, tracklistFragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
+                        updateSearchResults(searchResults);
                     }
                 } catch (JSONException jsonException) {
                     runOnUiThread(() -> {
@@ -128,5 +107,114 @@ public class SearchMusicActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void getSavedTracks() {
+        Request request = new Request.Builder().url("https://api.spotify.com/v1/me/tracks")
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    if (response.body() != null) {
+                        String responseString = response.body().string();
+                        JSONObject tracks = new JSONObject(responseString);
+                        ArrayList<TrackItem> trackItems = parseTracks(tracks);
+
+                        updateSearchResults(trackItems);
+                    }
+                } catch (JSONException jsonException) {
+                    runOnUiThread(() -> {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Could not load saved tracks.", Toast.LENGTH_LONG);
+                        toast.show();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    private void getTracksByGenre(String genre) {
+        Request request = new Request.Builder().url("https://api.spotify.com/v1/search?type=track&q=genre:" + genre)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    if (response.body() != null) {
+                        ArrayList<TrackItem> trackItems = new ArrayList<>();
+
+                        String responseString = response.body().string();
+                        JSONObject tracksObject = new JSONObject(responseString);
+                        JSONObject tracks = tracksObject.getJSONObject("tracks");
+                        JSONArray items = tracks.getJSONArray("items");
+
+                        for (int i = 0; i < items.length(); i++) {
+                            JSONObject track = items.getJSONObject(i);
+                            TrackItem trackItem = getTrackData(track);
+
+                            trackItems.add(trackItem);
+                        }
+
+                        updateSearchResults(trackItems);
+                    }
+                } catch (JSONException jsonException) {
+                    runOnUiThread(() -> {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Could not load search results.", Toast.LENGTH_LONG);
+                        toast.show();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    private TrackItem getTrackData(JSONObject track) throws JSONException {
+        String trackName = track.getString("name");
+        JSONArray trackArtists = track.getJSONArray("artists");
+
+        StringBuilder artists = new StringBuilder();
+
+        for (int j = 0; j < trackArtists.length(); j++) {
+            JSONObject artist = trackArtists.getJSONObject(j);
+            String artistName = artist.getString("name");
+            artists.append(artistName).append(", ");
+        }
+
+        return new TrackItem(trackName, artists.toString());
+    }
+
+    private ArrayList<TrackItem> parseTracks(JSONObject tracks) throws JSONException {
+        JSONArray items = tracks.getJSONArray("items");
+        ArrayList<TrackItem> trackItems = new ArrayList<>();
+
+        for (int i = 0; i < items.length(); i++) {
+            JSONObject item = items.getJSONObject(i);
+            JSONObject track = item.getJSONObject("track");
+            TrackItem trackItem = getTrackData(track);
+
+            trackItems.add(trackItem);
+        }
+
+        return trackItems;
+    }
+
+    private void updateSearchResults(ArrayList<TrackItem> trackItems) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        TracklistFragment tracklistFragment = TracklistFragment.newInstance(trackItems);
+        transaction.replace(R.id.fragmentContainerView, tracklistFragment);
+        transaction.commit();
     }
 }

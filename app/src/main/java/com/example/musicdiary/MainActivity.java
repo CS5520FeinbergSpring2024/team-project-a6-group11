@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             AuthorizationRequest.Builder builder =
                     new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
 
-            builder.setScopes(new String[]{"streaming"});
+            builder.setScopes(new String[]{"streaming", "user-library-read"});
             AuthorizationRequest request = builder.build();
 
             AuthorizationClient.openLoginInBrowser(this, request);
