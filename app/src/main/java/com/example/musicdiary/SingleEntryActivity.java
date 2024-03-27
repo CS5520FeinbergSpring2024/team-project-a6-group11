@@ -23,6 +23,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -33,6 +35,7 @@ import okhttp3.Response;
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
     private String baseSearchURL = "https://api.spotify.com/v1/search";
+    TextView dateTextView;
     ImageButton albumImageView;
     TextView trackNameTextView;
     TextView artistTextView;
@@ -46,13 +49,17 @@ public class SingleEntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_entry);
 
+        dateTextView = findViewById(R.id.dateTextView);
         albumImageView = findViewById(R.id.albumCoverButton);
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
 
-        client = new OkHttpClient();
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
+        dateTextView.setText(dateTimeFormatter.format(localDate));
 
+        client = new OkHttpClient();
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost) {

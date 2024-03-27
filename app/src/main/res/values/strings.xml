@@ -4,4 +4,5 @@
     <string name="button_search_for_playlist">Search for Playlist</string>
     <string name="play_track">Play track</string>
     <string name="add_track">Add track</string>
+    <string name="diary_entry_date">Date</string>
 </resources>
