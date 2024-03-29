@@ -226,16 +226,15 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     private TrackItem getTrackData(JSONObject track) throws JSONException {
         String trackName = track.getString("name");
         JSONArray trackArtists = track.getJSONArray("artists");
-
-        StringBuilder artists = new StringBuilder();
+        ArrayList<String> artists = new ArrayList<>();
 
         for (int j = 0; j < trackArtists.length(); j++) {
             JSONObject artist = trackArtists.getJSONObject(j);
             String artistName = artist.getString("name");
-            artists.append(artistName).append(", ");
+            artists.add(artistName);
         }
 
-        return new TrackItem(trackName, artists.toString(), track.get("preview_url").toString());
+        return new TrackItem(trackName, String.join(", ", artists), track.get("preview_url").toString());
     }
 
     private ArrayList<TrackItem> parseTracks(JSONObject tracks) throws JSONException {
