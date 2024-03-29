@@ -50,15 +50,56 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Ok", (dialog, which) -> System.exit(0))
                         .setCancelable(false)
                         .show();
-                return;
             }
         }
+    }
 
-        if (mSpotifyAppRemote != null && mSpotifyAppRemote.isConnected()) {
-            connected();
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+    }
 
-            return;
-        } else { // ensure the user is logged in before using the app
+    private void connected() {
+        // Play a playlist
+        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        Log.d("MainActivity", track.name + " by " + track.artist.name);
+                    }
+                });
+    }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        Uri uri = intent.getData();
+        if (uri != null) {
+            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
+
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    accessToken = response.getAccessToken();
+                    startProfileActivity();
+                    break;
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    break;
+                // Most likely auth flow was cancelled
+                default:
+                    // Handle other cases
+            }
+        }
+    }
+
+    public void openLoginPage(View view) {
             AuthorizationRequest.Builder builder =
                     new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
 
@@ -66,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
             AuthorizationRequest request = builder.build();
 
             AuthorizationClient.openLoginInBrowser(this, request);
-        }
 
+        /*
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
@@ -116,51 +157,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-    }
-
-    private void connected() {
-        // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-
-        // Subscribe to PlayerState
-        mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(playerState -> {
-                    final Track track = playerState.track;
-                    if (track != null) {
-                        Log.d("MainActivity", track.name + " by " + track.artist.name);
-                    }
-                });
-    }
-
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        Uri uri = intent.getData();
-        if (uri != null) {
-            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
-
-            switch (response.getType()) {
-                // Response was successful and contains auth token
-                case TOKEN:
-                    accessToken = response.getAccessToken();
-
-                    break;
-                // Auth flow returned an error
-                case ERROR:
-                    // Handle error response
-                    break;
-                // Most likely auth flow was cancelled
-                default:
-                    // Handle other cases
-            }
-        }
+         */
     }
 
     public void onClickToDiaryBook(View view){
@@ -170,6 +168,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void startSearchMusicActivity(View view) {
         Intent intent = new Intent(this, SearchMusicActivity.class);
+        startActivity(intent);
+    }
+
+    public void startProfileActivity() {
+        Intent intent = new Intent(this, ProfileActivity.class);
         startActivity(intent);
     }
 }
