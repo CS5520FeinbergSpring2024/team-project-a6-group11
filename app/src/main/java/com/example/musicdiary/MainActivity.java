@@ -45,9 +45,8 @@ public class MainActivity extends AppCompatActivity {
                 new AlertDialog.Builder(this)
                         .setTitle("Spotify is not installed!")
                         .setMessage("This application requires Spotify to be installed on your phone! " +
-                                "Please install it in order to use this application!\n\n" +
-                                "This application will now close.")
-                        .setPositiveButton("Ok", (dialog, which) -> System.exit(0))
+                                "Please install it in order to use this application!")
+                        .setPositiveButton("Download Spotify", (dialog, which) -> AuthorizationClient.openDownloadSpotifyActivity(this))
                         .setCancelable(false)
                         .show();
             }
