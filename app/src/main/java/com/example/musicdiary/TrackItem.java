@@ -2,7 +2,9 @@ package com.example.musicdiary;
 
 import androidx.annotation.NonNull;
 
-public class TrackItem {
+import java.io.Serializable;
+
+public class TrackItem implements Serializable {
     public final String trackName;
     public final String trackArtists;
     public final String trackPreviewURL;
