@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -27,12 +28,16 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SearchMusicActivity extends AppCompatActivity {
-    private EditText editTextPlaylistId;
+public class SearchMusicActivity extends AppCompatActivity implements View.OnClickListener {
+    private EditText editTextSearch;
     private String accessToken;
     private OkHttpClient client;
     private FragmentManager fragmentManager;
     private ArrayList<TrackItem> searchResults;
+    private String searchType;
+    private TextView titleTextView;
+    private TextView genreTextView;
+    private TextView artistTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +47,36 @@ public class SearchMusicActivity extends AppCompatActivity {
         accessToken = MainActivity.accessToken;
         client = new OkHttpClient();
 
-        editTextPlaylistId = findViewById(R.id.editTextPlaylistId);
-        editTextPlaylistId.setOnKeyListener(this::onClickEditTextPlaylistId);
-        Button buttonSearchForPlaylist = findViewById(R.id.buttonPlaylistSearch);
-        buttonSearchForPlaylist.setOnClickListener(view -> onClickSearchForPlaylist());
+        editTextSearch = findViewById(R.id.editTextSearch);
+        editTextSearch.setOnKeyListener(this::onClickEditTextSearch);
+        Button buttonSearch = findViewById(R.id.buttonSearch);
+        buttonSearch.setOnClickListener(view -> onClickSearch());
 
         fragmentManager = getSupportFragmentManager();
         searchResults = new ArrayList<>();
+
+        titleTextView = findViewById(R.id.titleTextView);
+        genreTextView = findViewById(R.id.genreTextView);
+        artistTextView = findViewById(R.id.artistTextView2);
+
+        setSearchType("title");
     }
 
-    private boolean onClickEditTextPlaylistId(View view, int keyCode, KeyEvent keyEvent) {
+    public void setSearchType(String searchType) {
+        this.searchType = searchType;
+        titleTextView.setText(searchType.equals("title") ? "• Title" : "  Title");
+        genreTextView.setText(searchType.equals("genre") ? "• Genre" : "  Genre");
+        artistTextView.setText(searchType.equals("artist") ? "• Artist" : "  Artist");
+
+        editTextSearch.setHint("Search by " + searchType + "...");
+    }
+
+    private boolean onClickEditTextSearch(View view, int keyCode, KeyEvent keyEvent) {
         if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             InputMethodManager inputMethodManager = (InputMethodManager) getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(editTextPlaylistId.getWindowToken(), 0);
+            inputMethodManager.hideSoftInputFromWindow(editTextSearch.getWindowToken(), 0);
 
-            editTextPlaylistId.clearFocus();
+            editTextSearch.clearFocus();
 
             return true;
         }
@@ -64,16 +84,26 @@ public class SearchMusicActivity extends AppCompatActivity {
         return false;
     }
 
-    private void onClickSearchForPlaylist() {
-        String playlistId = editTextPlaylistId.getText().toString();
-        if (playlistId.equals("")) {
-            Toast toast = Toast.makeText(this, "Please enter a playlist id to search for!", Toast.LENGTH_SHORT);
+    private void onClickSearch() {
+        String searchQuery = editTextSearch.getText().toString();
+        if (searchQuery.equals("")) {
+            Toast toast = Toast.makeText(this, "Please enter " + (searchType.equals("artist") ? "an artist" : "a " + searchType) + " to search for!", Toast.LENGTH_SHORT);
             toast.show();
 
             return;
         }
 
-        getPlaylistData(playlistId);
+        switch (searchType) {
+            case "title":
+                getTracksByTitle(searchQuery);
+                break;
+            case "genre":
+                getTracksByGenre(searchQuery);
+                break;
+            case "artist":
+                getTracksByArtist(searchQuery);
+                break;
+        }
     }
 
     // 3cEYpjA9oz9GiPac4AsH4n
@@ -140,8 +170,20 @@ public class SearchMusicActivity extends AppCompatActivity {
         });
     }
 
+    private void getTracksByTitle(String title) {
+        getFilteredTracks("track:" + title);
+    }
+
     private void getTracksByGenre(String genre) {
-        Request request = new Request.Builder().url("https://api.spotify.com/v1/search?type=track&q=genre:" + genre)
+        getFilteredTracks("genre:" + genre);
+    }
+
+    private void getTracksByArtist(String artist) {
+        getFilteredTracks("artist:" + artist);
+    }
+
+    private void getFilteredTracks(String filter) {
+        Request request = new Request.Builder().url("https://api.spotify.com/v1/search?type=track&q=" + filter)
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .build();
 
@@ -216,5 +258,18 @@ public class SearchMusicActivity extends AppCompatActivity {
         TracklistFragment tracklistFragment = TracklistFragment.newInstance(trackItems);
         transaction.replace(R.id.fragmentContainerView, tracklistFragment);
         transaction.commit();
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+
+        if (id == R.id.titleTextView) {
+            setSearchType("title");
+        } else if (id == R.id.genreTextView) {
+            setSearchType("genre");
+        } else if (id == R.id.artistTextView2) {
+            setSearchType("artist");
+        }
     }
 }

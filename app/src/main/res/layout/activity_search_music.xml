@@ -7,43 +7,97 @@
     tools:context=".SearchMusicActivity">
 
     <EditText
-        android:id="@+id/editTextPlaylistId"
+        android:id="@+id/editTextSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/edit_text_playlist_id"
         android:inputType="text"
         android:minHeight="48dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonPlaylistSearch"
+        app:layout_constraintBottom_toTopOf="@+id/buttonSearch"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.100000024"
-        app:layout_constraintVertical_chainStyle="packed"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
-        android:id="@+id/buttonPlaylistSearch"
+        android:id="@+id/buttonSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/button_search_for_playlist"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/button_search"
+        app:layout_constraintBottom_toTopOf="@+id/fragmentContainerView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPlaylistId" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextSearch" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:name="com.example.musicdiary.TracklistFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonSearch"
+        tools:layout="@layout/fragment_track_list" />
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:onClick="onClick"
+        android:padding="10dp"
+        android:text="@string/title"
+        app:layout_constraintBottom_toBottomOf="@+id/searchMusicTextView"
+        app:layout_constraintEnd_toStartOf="@+id/genreTextView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/searchMusicTextView"
+        app:layout_constraintTop_toTopOf="@+id/searchMusicTextView" />
+
+    <TextView
+        android:id="@+id/genreTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:onClick="onClick"
+        android:padding="10dp"
+        android:text="@string/genre"
+        app:layout_constraintBottom_toBottomOf="@+id/titleTextView"
+        app:layout_constraintEnd_toStartOf="@+id/artistTextView2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/titleTextView"
+        app:layout_constraintTop_toTopOf="@+id/titleTextView" />
+
+    <TextView
+        android:id="@+id/artistTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:onClick="onClick"
+        android:padding="10dp"
+        android:text="@string/artist"
+        app:layout_constraintBottom_toBottomOf="@+id/genreTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/genreTextView"
+        app:layout_constraintTop_toTopOf="@+id/genreTextView" />
+
+    <TextView
+        android:id="@+id/searchMusicTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:text="@string/search_music_by"
+        app:layout_constraintBottom_toTopOf="@+id/editTextSearch"
+        app:layout_constraintEnd_toStartOf="@+id/titleTextView"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonPlaylistSearch"
-        tools:layout="@layout/fragment_track_list" />
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

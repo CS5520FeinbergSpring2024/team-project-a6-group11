@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">MusicDiary</string>
     <string name="edit_text_playlist_id">Playlist ID</string>
-    <string name="button_search_for_playlist">Search for Playlist</string>
+    <string name="button_search">Search</string>
     <string name="play_track">Play track</string>
     <string name="add_track">Add track</string>
     <string name="diary_entry_date">Date</string>
+    <string name="title">Title</string>
+    <string name="genre">Genre</string>
+    <string name="artist">Artist</string>
+    <string name="search_music_by">Search music by:</string>
 </resources>
