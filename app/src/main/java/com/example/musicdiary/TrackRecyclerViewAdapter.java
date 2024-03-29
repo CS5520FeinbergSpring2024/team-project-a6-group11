@@ -3,12 +3,16 @@ package com.example.musicdiary;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.musicdiary.databinding.FragmentTrackBinding;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,6 +36,17 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.trackName.setText(trackItems.get(position).trackName);
         holder.trackArtists.setText(trackItems.get(position).trackArtists);
+        holder.playButton.setOnClickListener(view -> {
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            try {
+                mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+            } catch (IOException ioException) {
+                Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
     }
 
     @Override
@@ -42,11 +57,13 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView trackName;
         public final TextView trackArtists;
+        public final ImageButton playButton;
 
         public ViewHolder(FragmentTrackBinding binding) {
             super(binding.getRoot());
             trackName = binding.trackName;
             trackArtists = binding.trackArtists;
+            playButton = binding.playButton;
         }
     }
 }

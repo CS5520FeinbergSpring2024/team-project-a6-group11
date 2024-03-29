@@ -16,8 +16,4 @@ public class DiaryBookActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SingleEntryActivity.class);
         startActivity(intent);
     }
-
-
-
-
 }

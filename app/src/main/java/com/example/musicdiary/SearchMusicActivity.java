@@ -235,7 +235,7 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
             artists.append(artistName).append(", ");
         }
 
-        return new TrackItem(trackName, artists.toString());
+        return new TrackItem(trackName, artists.toString(), track.get("preview_url").toString());
     }
 
     private ArrayList<TrackItem> parseTracks(JSONObject tracks) throws JSONException {
