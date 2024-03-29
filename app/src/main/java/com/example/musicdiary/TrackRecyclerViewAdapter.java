@@ -19,8 +19,8 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link TrackItem}.
  */
 public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.ViewHolder> {
-
     private final List<TrackItem> trackItems;
+    private final MediaPlayer mediaPlayer = new MediaPlayer();
 
     public TrackRecyclerViewAdapter(List<TrackItem> trackItems) {
         this.trackItems = trackItems;
@@ -36,9 +36,11 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.trackName.setText(trackItems.get(position).trackName);
         holder.trackArtists.setText(trackItems.get(position).trackArtists);
+
+        resetMediaPlayer();
         holder.playButton.setOnClickListener(view -> {
-            MediaPlayer mediaPlayer = new MediaPlayer();
             try {
+                resetMediaPlayer();
                 mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
                 mediaPlayer.prepare();
                 mediaPlayer.start();
@@ -52,6 +54,15 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     @Override
     public int getItemCount() {
         return trackItems.size();
+    }
+
+    private void resetMediaPlayer() {
+        if (mediaPlayer == null) {
+            return;
+        }
+
+        mediaPlayer.stop();
+        mediaPlayer.reset();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
