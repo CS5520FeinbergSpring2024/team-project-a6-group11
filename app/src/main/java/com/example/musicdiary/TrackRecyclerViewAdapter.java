@@ -44,8 +44,10 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
                 mediaPlayer.prepare();
                 mediaPlayer.start();
             } catch (IOException ioException) {
-                Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
-                toast.show();
+                view.post(() -> {
+                    Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
+                    toast.show();
+                });
             }
         })
         );

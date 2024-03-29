@@ -25,6 +25,7 @@ import com.spotify.sdk.android.auth.AuthorizationResponse;
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
+    private static final int REQUEST_CODE = 0;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     public static String accessToken;
 
@@ -74,23 +75,26 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
 
-        Uri uri = intent.getData();
-        if (uri != null) {
-            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
+        // Check if result comes from the correct activity
+        if (requestCode == REQUEST_CODE) {
+            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
 
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
+                    // Handle successful response
                     accessToken = response.getAccessToken();
                     startProfileActivity();
                     break;
+
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
                     break;
+
                 // Most likely auth flow was cancelled
                 default:
                     // Handle other cases
@@ -99,13 +103,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openLoginPage(View view) {
-            AuthorizationRequest.Builder builder =
-                    new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+        AuthorizationRequest.Builder builder =
+                new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
 
-            builder.setScopes(new String[]{"streaming", "user-library-read"});
-            AuthorizationRequest request = builder.build();
+        builder.setScopes(new String[]{"streaming", "user-library-read"});
+        AuthorizationRequest request = builder.build();
 
-            AuthorizationClient.openLoginInBrowser(this, request);
+        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
 
         /*
         ConnectionParams connectionParams =
@@ -160,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
          */
     }
 
-    public void onClickToDiaryBook(View view){
+    public void onClickToDiaryBook(View view) {
         Intent intent = new Intent(this, DiaryBookActivity.class);
         startActivity(intent);
     }

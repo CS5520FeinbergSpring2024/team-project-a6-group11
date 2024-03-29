@@ -13,6 +13,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        manifestPlaceholders.apply {
+            set("redirectSchemeName", "spotify-sdk")
+            set("redirectHostName", "auth")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -41,7 +46,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
     implementation("com.google.code.gson:gson:2.10")
-    implementation ("com.spotify.android:auth:1.2.5")
+    implementation ("com.spotify.android:auth:2.1.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
