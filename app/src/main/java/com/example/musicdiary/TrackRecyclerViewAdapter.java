@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.ViewHolder> {
     private final List<TrackItem> trackItems;
-    private final MediaPlayer mediaPlayer = new MediaPlayer();
+    private static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     public TrackRecyclerViewAdapter(List<TrackItem> trackItems) {
         this.trackItems = trackItems;
@@ -36,9 +37,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.trackName.setText(trackItems.get(position).trackName);
         holder.trackArtists.setText(trackItems.get(position).trackArtists);
-
-        resetMediaPlayer();
-        holder.playButton.setOnClickListener(view -> {
+        holder.playButton.setOnClickListener(view -> AsyncTask.execute(() -> {
             try {
                 resetMediaPlayer();
                 mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
@@ -48,7 +47,8 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
                 Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
                 toast.show();
             }
-        });
+        })
+        );
     }
 
     @Override
@@ -57,10 +57,6 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     }
 
     private void resetMediaPlayer() {
-        if (mediaPlayer == null) {
-            return;
-        }
-
         mediaPlayer.stop();
         mediaPlayer.reset();
     }
