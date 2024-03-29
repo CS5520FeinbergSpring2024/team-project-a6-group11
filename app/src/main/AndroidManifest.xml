@@ -45,7 +45,9 @@
         </activity>
         <activity
             android:name=".SingleEntryActivity"
-            android:exported="true"></activity>
+            android:exported="true"
+            android:parentActivityName=".DiaryBookActivity"
+            ></activity>
 
         <activity
             android:name=".DiaryBookActivity"

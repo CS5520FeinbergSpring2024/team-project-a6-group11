@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,15 +49,17 @@ public class SingleEntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_entry);
 
-        dateTextView = findViewById(R.id.dateTextView);
         albumImageView = findViewById(R.id.albumCoverButton);
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
+        Toolbar toolbar = findViewById(R.id.diaryToolbar);
+        setSupportActionBar(toolbar);
 
         LocalDate localDate = LocalDate.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
-        dateTextView.setText(dateTimeFormatter.format(localDate));
+        getSupportActionBar().setTitle(dateTimeFormatter.format(localDate));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         client = new OkHttpClient();
     }
