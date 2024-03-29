@@ -163,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void OnClickToEntry(View view){
-        Intent intent = new Intent(this, SingleEntryActivity.class);
+    public void onClickToDiaryBook(View view){
+        Intent intent = new Intent(this, DiaryBookActivity.class);
         startActivity(intent);
     }
 
