@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    // Add the dependency for the Google services Gradle plugin
+    id("com.google.gms.google-services") version "4.4.1" apply false
 }
 
 android {
@@ -40,9 +42,10 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
     implementation("com.google.code.gson:gson:2.10")
@@ -54,5 +57,4 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.browser:browser:1.8.0")
     implementation ("com.squareup.picasso:picasso:2.8")
-
 }
