@@ -72,4 +72,22 @@ public class TracklistFragment extends Fragment {
         }
         return view;
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        TrackRecyclerViewAdapter.mediaPlayer.pause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        TrackRecyclerViewAdapter.mediaPlayer.start();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        TrackRecyclerViewAdapter.mediaPlayer.stop();
+    }
 }

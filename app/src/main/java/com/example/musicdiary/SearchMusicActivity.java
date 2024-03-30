@@ -295,16 +295,4 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
             setSearchType("artist");
         }
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        TrackRecyclerViewAdapter.mediaPlayer.stop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        TrackRecyclerViewAdapter.mediaPlayer.stop();
-    }
 }

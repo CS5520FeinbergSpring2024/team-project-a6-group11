@@ -28,9 +28,16 @@ import java.util.List;
 public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.ViewHolder> {
     private final List<TrackItem> trackItems;
     public static final MediaPlayer mediaPlayer = new MediaPlayer();
+    private int lastPlayingTrackPosition = -1;
 
     public TrackRecyclerViewAdapter(List<TrackItem> trackItems) {
         this.trackItems = trackItems;
+        mediaPlayer.setOnCompletionListener(mp -> {
+            if (lastPlayingTrackPosition != -1) {
+                notifyItemChanged(lastPlayingTrackPosition);
+                lastPlayingTrackPosition = -1;
+            }
+        });
     }
 
     @NonNull
@@ -68,6 +75,14 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             });
         }
 
+        int currentPosition = holder.getAdapterPosition();
+
+        if (currentPosition == lastPlayingTrackPosition) {
+            holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
+        } else {
+            holder.playButton.setImageResource(android.R.drawable.ic_media_play);
+        }
+
         holder.playButton.setOnClickListener(view -> AsyncTask.execute(() -> {
                     try {
                         if (trackItems.get(position).trackPreviewURL.equals("null")) {
@@ -75,12 +90,17 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
                                 Toast toast = Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT);
                                 toast.show();
                             });
+                        } else if (lastPlayingTrackPosition == currentPosition) {
+                            mediaPlayer.pause();
+                            lastPlayingTrackPosition = -1;
                         } else {
                             resetMediaPlayer();
                             mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
                             mediaPlayer.prepare();
                             mediaPlayer.start();
+                            lastPlayingTrackPosition = currentPosition;
                         }
+                        view.post(this::notifyDataSetChanged);
                     } catch (IOException ioException) {
                         view.post(() -> {
                             Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
