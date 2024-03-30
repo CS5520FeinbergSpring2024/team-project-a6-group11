@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "389483682741",
+    "firebase_url": "https://cs5520-84f26-default-rtdb.firebaseio.com",
+    "project_id": "cs5520-84f26",
+    "storage_bucket": "cs5520-84f26.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389483682741:android:ad63384340489e5c7f17fc",
+        "android_client_info": {
+          "package_name": "com.example.group_a6_a6_group11"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-3PJx10QX9qV4HO_QQfaP_2Xfo_NPR-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389483682741:android:4a39cdae949df2407f17fc",
+        "android_client_info": {
+          "package_name": "com.example.musicdiary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-3PJx10QX9qV4HO_QQfaP_2Xfo_NPR-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
