@@ -38,6 +38,8 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     private TextView titleTextView;
     private TextView genreTextView;
     private TextView artistTextView;
+    private TextView noResultsTextView;
+    private InputMethodManager inputMethodManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,9 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         titleTextView = findViewById(R.id.titleTextView);
         genreTextView = findViewById(R.id.genreTextView);
         artistTextView = findViewById(R.id.artistTextView2);
+        noResultsTextView = findViewById(R.id.noResultsTextView);
+
+        inputMethodManager = (InputMethodManager) getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
         setSearchType("title");
     }
@@ -71,16 +76,16 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         editTextSearch.setHint("Search by " + searchType + "...");
     }
 
+    private void hideKeyboard() {
+        inputMethodManager.hideSoftInputFromWindow(editTextSearch.getWindowToken(), 0);
+    }
+
     private boolean onClickEditTextSearch(View view, int keyCode, KeyEvent keyEvent) {
         if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            InputMethodManager inputMethodManager = (InputMethodManager) getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(editTextSearch.getWindowToken(), 0);
-
+            hideKeyboard();
             editTextSearch.clearFocus();
-
             return true;
         }
-
         return false;
     }
 
@@ -104,6 +109,8 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
                 getTracksByArtist(searchQuery);
                 break;
         }
+
+        hideKeyboard();
     }
 
     // 3cEYpjA9oz9GiPac4AsH4n
@@ -202,11 +209,10 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
                         for (int i = 0; i < items.length(); i++) {
                             JSONObject track = items.getJSONObject(i);
                             TrackItem trackItem = getTrackData(track);
-
                             trackItems.add(trackItem);
                         }
 
-                        updateSearchResults(trackItems);
+                        runOnUiThread(() -> updateSearchResults(trackItems));
                     }
                 } catch (JSONException jsonException) {
                     runOnUiThread(() -> {
@@ -256,6 +262,12 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updateSearchResults(ArrayList<TrackItem> trackItems) {
+        if (trackItems.size() == 0) {
+            noResultsTextView.setVisibility(View.VISIBLE);
+        } else {
+            noResultsTextView.setVisibility(View.INVISIBLE);
+        }
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         TracklistFragment tracklistFragment = TracklistFragment.newInstance(trackItems);
         transaction.replace(R.id.fragmentContainerView, tracklistFragment);
@@ -273,5 +285,11 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         } else if (id == R.id.artistTextView2) {
             setSearchType("artist");
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TrackRecyclerViewAdapter.mediaPlayer.stop();
     }
 }

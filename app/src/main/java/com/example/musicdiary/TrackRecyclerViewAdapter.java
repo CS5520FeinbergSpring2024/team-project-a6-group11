@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.ViewHolder> {
     private final List<TrackItem> trackItems;
-    private static final MediaPlayer mediaPlayer = new MediaPlayer();
+    public static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     public TrackRecyclerViewAdapter(List<TrackItem> trackItems) {
         this.trackItems = trackItems;
