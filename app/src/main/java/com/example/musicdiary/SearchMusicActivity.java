@@ -225,6 +225,9 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
 
     private TrackItem getTrackData(JSONObject track) throws JSONException {
         String trackName = track.getString("name");
+        JSONArray images = track.getJSONObject("album").getJSONArray("images");
+        String trackIconURL = images.getJSONObject(2).getString("url"); // index 2 contains the url for the small icon
+
         JSONArray trackArtists = track.getJSONArray("artists");
         ArrayList<String> artists = new ArrayList<>();
 
@@ -234,7 +237,7 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
             artists.add(artistName);
         }
 
-        return new TrackItem(trackName, String.join(", ", artists), track.get("preview_url").toString());
+        return new TrackItem(trackName, String.join(", ", artists), track.get("preview_url").toString(), trackIconURL);
     }
 
     private ArrayList<TrackItem> parseTracks(JSONObject tracks) throws JSONException {

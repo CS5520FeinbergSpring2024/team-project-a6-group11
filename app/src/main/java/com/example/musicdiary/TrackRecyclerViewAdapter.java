@@ -3,6 +3,10 @@ package com.example.musicdiary;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
@@ -12,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.musicdiary.databinding.FragmentTrackBinding;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,19 +43,51 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.trackName.setText(trackItems.get(position).trackName);
         holder.trackArtists.setText(trackItems.get(position).trackArtists);
+
+        Context context = holder.itemView.getContext();
+
+        String trackIconURL = trackItems.get(position).trackIconURL;
+
+        if (trackIconURL != null) {
+            Picasso.get().load(trackIconURL).into(new Target() {
+
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    holder.playButton.setBackground(new BitmapDrawable(context.getResources(), bitmap));
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
+        }
+
         holder.playButton.setOnClickListener(view -> AsyncTask.execute(() -> {
-            try {
-                resetMediaPlayer();
-                mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-            } catch (IOException ioException) {
-                view.post(() -> {
-                    Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
-                    toast.show();
-                });
-            }
-        })
+                    try {
+                        if (trackItems.get(position).trackPreviewURL.equals("null")) {
+                            view.post(() -> {
+                                Toast toast = Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT);
+                                toast.show();
+                            });
+                        } else {
+                            resetMediaPlayer();
+                            mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+                        }
+                    } catch (IOException ioException) {
+                        view.post(() -> {
+                            Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
+                            toast.show();
+                        });
+                    }
+                })
         );
     }
 

@@ -8,11 +8,13 @@ public class TrackItem implements Serializable {
     public final String trackName;
     public final String trackArtists;
     public final String trackPreviewURL;
+    public final String trackIconURL;
 
-    public TrackItem(String trackName, String trackArtists, String trackPreviewURL) {
+    public TrackItem(String trackName, String trackArtists, String trackPreviewURL, String trackIconURL) {
         this.trackName = trackName;
         this.trackArtists = trackArtists;
         this.trackPreviewURL = trackPreviewURL;
+        this.trackIconURL = trackIconURL;
     }
 
     @NonNull
@@ -22,6 +24,7 @@ public class TrackItem implements Serializable {
                 "trackName='" + trackName + '\'' +
                 ", trackArtists='" + trackArtists + '\'' +
                 ", trackPreviewURL='" + trackPreviewURL + '\'' +
+                ", trackIconURL='" + trackIconURL + '\'' +
                 '}';
     }
 }
