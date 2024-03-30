@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     private TextView genreTextView;
     private TextView artistTextView;
     private TextView noResultsTextView;
+    private ProgressBar progressBar;
     private InputMethodManager inputMethodManager;
 
     @Override
@@ -61,6 +63,7 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         genreTextView = findViewById(R.id.genreTextView);
         artistTextView = findViewById(R.id.artistTextView2);
         noResultsTextView = findViewById(R.id.noResultsTextView);
+        progressBar = findViewById(R.id.progressBar);
 
         inputMethodManager = (InputMethodManager) getBaseContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -194,6 +197,8 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .build();
 
+        progressBar.setVisibility(View.VISIBLE);
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
@@ -212,10 +217,14 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
                             trackItems.add(trackItem);
                         }
 
-                        runOnUiThread(() -> updateSearchResults(trackItems));
+                        runOnUiThread(() -> {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            updateSearchResults(trackItems);
+                        });
                     }
                 } catch (JSONException jsonException) {
                     runOnUiThread(() -> {
+                        progressBar.setVisibility(View.INVISIBLE);
                         Toast toast = Toast.makeText(getApplicationContext(), "Could not load search results.", Toast.LENGTH_LONG);
                         toast.show();
                     });
@@ -285,6 +294,12 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         } else if (id == R.id.artistTextView2) {
             setSearchType("artist");
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        TrackRecyclerViewAdapter.mediaPlayer.stop();
     }
 
     @Override
