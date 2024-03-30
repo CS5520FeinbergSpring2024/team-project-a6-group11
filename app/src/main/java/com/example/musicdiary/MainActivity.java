@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 case TOKEN:
                     // Handle successful response
                     accessToken = response.getAccessToken();
-                    startProfileActivity();
+                    startHomepageActivity();
                     break;
 
                 // Auth flow returned an error
@@ -164,18 +164,8 @@ public class MainActivity extends AppCompatActivity {
          */
     }
 
-    public void onClickToDiaryBook(View view) {
-        Intent intent = new Intent(this, DiaryBookActivity.class);
-        startActivity(intent);
-    }
-
-    public void startSearchMusicActivity(View view) {
-        Intent intent = new Intent(this, SearchMusicActivity.class);
-        startActivity(intent);
-    }
-
-    public void startProfileActivity() {
-        Intent intent = new Intent(this, ProfileActivity.class);
+    public void startHomepageActivity() {
+        Intent intent = new Intent(this, HomepageActivity.class);
         startActivity(intent);
     }
 }

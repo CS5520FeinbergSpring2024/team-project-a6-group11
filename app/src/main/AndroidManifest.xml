@@ -15,9 +15,12 @@
         android:theme="@style/Theme.MusicDiary"
         tools:targetApi="31">
         <activity
-            android:name=".SearchMusicActivity"
-            android:windowSoftInputMode="adjustNothing"
+            android:name=".HomepageActivity"
             android:exported="false" />
+        <activity
+            android:name=".SearchMusicActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
@@ -25,34 +28,29 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleInstance">
-
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
                     android:host="callback"
-                    android:scheme="com.example.musicdiary"/>
+                    android:scheme="com.example.musicdiary" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".SingleEntryActivity"
             android:exported="true"
-            android:parentActivityName=".DiaryBookActivity"
-            ></activity>
-
+            android:parentActivityName=".DiaryBookActivity" />
         <activity
             android:name=".DiaryBookActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>
