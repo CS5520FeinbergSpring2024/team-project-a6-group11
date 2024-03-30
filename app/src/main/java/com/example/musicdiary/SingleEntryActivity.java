@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -56,9 +57,23 @@ public class SingleEntryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
 
-        LocalDate localDate = LocalDate.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
-        getSupportActionBar().setTitle(dateTimeFormatter.format(localDate));
+        String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
+        String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
+
+        if (getSupportActionBar() != null) {
+            if (openedEntryDate == null) {
+                LocalDate localDate = LocalDate.now();
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
+                getSupportActionBar().setTitle(dateTimeFormatter.format(localDate));
+            } else {
+                getSupportActionBar().setTitle(openedEntryDate);
+            }
+        }
+
+        if (openedEntryTrackName != null) {
+            trackNameTextView.setText(openedEntryTrackName);
+        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         client = new OkHttpClient();
@@ -86,7 +101,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 runOnUiThread(() -> {
-                    Log.d("SingleEntry","run on uni thread");
+                    Log.d("SingleEntry", "run on uni thread");
                     try {
                         String jsonData = response.body().string();
                         JSONObject resposneObject = new JSONObject(jsonData);
@@ -145,10 +160,10 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     public void onClickUpdateEntry(View view) {
-            onCreateDialog().show();
+        onCreateDialog().show();
     }
 
-    public Dialog onCreateDialog(){
+    public Dialog onCreateDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Edit Entry");
 
