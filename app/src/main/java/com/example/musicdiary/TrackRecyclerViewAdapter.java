@@ -29,15 +29,21 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     private final List<TrackItem> trackItems;
     public static final MediaPlayer mediaPlayer = new MediaPlayer();
     private int lastPlayingTrackPosition = -1;
+    private final OnAddButtonPressedListener onAddButtonPressedListener;
 
-    public TrackRecyclerViewAdapter(List<TrackItem> trackItems) {
+    public TrackRecyclerViewAdapter(List<TrackItem> trackItems, OnAddButtonPressedListener onAddButtonPressedListener) {
         this.trackItems = trackItems;
+        this.onAddButtonPressedListener = onAddButtonPressedListener;
         mediaPlayer.setOnCompletionListener(mp -> {
             if (lastPlayingTrackPosition != -1) {
                 notifyItemChanged(lastPlayingTrackPosition);
                 lastPlayingTrackPosition = -1;
             }
         });
+    }
+
+    public interface OnAddButtonPressedListener {
+        void onAddButtonPressed(TrackItem trackItem);
     }
 
     @NonNull
@@ -109,6 +115,12 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
                     }
                 })
         );
+
+        holder.addButton.setOnClickListener(view -> {
+            if (onAddButtonPressedListener != null) {
+                onAddButtonPressedListener.onAddButtonPressed(trackItems.get(position));
+            }
+        });
     }
 
     @Override
@@ -125,12 +137,14 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         public final TextView trackName;
         public final TextView trackArtists;
         public final ImageButton playButton;
+        public final ImageButton addButton;
 
         public ViewHolder(FragmentTrackBinding binding) {
             super(binding.getRoot());
             trackName = binding.trackName;
             trackArtists = binding.trackArtists;
             playButton = binding.playButton;
+            addButton = binding.addButton;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.musicdiary;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 /**
  * A fragment representing a list of tracks.
  */
-public class TracklistFragment extends Fragment {
+public class TracklistFragment extends Fragment implements TrackRecyclerViewAdapter.OnAddButtonPressedListener {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
@@ -68,7 +69,7 @@ public class TracklistFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new TrackRecyclerViewAdapter(getTracklist()));
+            recyclerView.setAdapter(new TrackRecyclerViewAdapter(getTracklist(), this));
         }
         return view;
     }
@@ -89,5 +90,14 @@ public class TracklistFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         TrackRecyclerViewAdapter.mediaPlayer.stop();
+    }
+
+    @Override
+    public void onAddButtonPressed(TrackItem trackItem) {
+        Intent intent = new Intent();
+        intent.putExtra("trackName", trackItem.getTrackName());
+        intent.putExtra("trackArtists", trackItem.getTrackArtists());
+        requireActivity().setResult(0, intent);
+        requireActivity().finish();
     }
 }

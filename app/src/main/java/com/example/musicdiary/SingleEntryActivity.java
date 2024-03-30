@@ -2,14 +2,18 @@ package com.example.musicdiary;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -41,7 +45,10 @@ public class SingleEntryActivity extends AppCompatActivity {
     TextView trackNameTextView;
     TextView artistTextView;
     TextView extraTextView;
+    EditText trackEditText;
+    EditText artistEditText;
     private static final String ACCESS_TOKEN = MainActivity.accessToken;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
 
@@ -77,6 +84,19 @@ public class SingleEntryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         client = new OkHttpClient();
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == 0) {
+                Intent data = result.getData();
+                if (data != null) {
+                    String trackName = data.getStringExtra("trackName");
+                    String trackArtists = data.getStringExtra("trackArtists");
+
+                    trackEditText.setText(trackName);
+                    artistEditText.setText(trackArtists);
+                }
+            }
+        });
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
@@ -170,10 +190,16 @@ public class SingleEntryActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.dialog_edit_entry, null);
         builder.setView(view);
 
-        EditText trackEditText = view.findViewById(R.id.trackNameEditText);
-        EditText artistEditText = view.findViewById(R.id.artistEditText);
+        trackEditText = view.findViewById(R.id.trackNameEditText);
+        artistEditText = view.findViewById(R.id.artistEditText);
 //        EditText albumEditText = view.findViewById(R.id.albumEditText);
         EditText textPostEditText = view.findViewById(R.id.textPostEditText);
+
+        Button searchMusicButton = view.findViewById(R.id.searchMusicButton);
+        searchMusicButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SearchMusicActivity.class);
+            activityResultLauncher.launch(intent);
+        });
 
         builder.setPositiveButton("Update Entry", (dialog, id) -> {
             String newTrack = trackEditText.getText().toString().trim();

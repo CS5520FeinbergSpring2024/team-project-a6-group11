@@ -17,6 +17,22 @@ public class TrackItem implements Serializable {
         this.trackIconURL = trackIconURL;
     }
 
+    public String getTrackName() {
+        return trackName;
+    }
+
+    public String getTrackArtists() {
+        return trackArtists;
+    }
+
+    public String getTrackPreviewURL() {
+        return trackPreviewURL;
+    }
+
+    public String getTrackIconURL() {
+        return trackIconURL;
+    }
+
     @NonNull
     @Override
     public String toString() {
