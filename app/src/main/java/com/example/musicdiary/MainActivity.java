@@ -5,16 +5,14 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.protocol.types.Track;
@@ -92,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
                 // Auth flow returned an error
                 case ERROR:
-                    // Handle error response
+                    Toast toast = Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
+                            "Please try again later.", Toast.LENGTH_SHORT);
+                    toast.show();
                     break;
 
                 // Most likely auth flow was cancelled
@@ -106,62 +106,9 @@ public class MainActivity extends AppCompatActivity {
         AuthorizationRequest.Builder builder =
                 new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
 
-        builder.setScopes(new String[]{"streaming", "user-library-read"});
         AuthorizationRequest request = builder.build();
 
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
-
-        /*
-        ConnectionParams connectionParams =
-                new ConnectionParams.Builder(CLIENT_ID)
-                        .setRedirectUri(REDIRECT_URI)
-                        .showAuthView(true)
-                        .build();
-
-        SpotifyAppRemote.connect(this, connectionParams,
-                new Connector.ConnectionListener() {
-                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                        mSpotifyAppRemote = spotifyAppRemote;
-                        Log.d("MainActivity", "Connected! Yay!");
-
-                        // Now you can start interacting with App Remote
-                        connected();
-                    }
-
-                    // Something went wrong when attempting to connect! Handle errors here
-                    public void onFailure(Throwable throwable) {
-                        if (throwable instanceof com.spotify.android.appremote.api.error.NotLoggedInException) {
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Not logged into Spotify!")
-                                    .setMessage("This application requires you to be logged into Spotify!")
-                                    .setPositiveButton("Open Spotify", (dialog, which) -> {
-                                        // We already checked that the user has the Spotify application installed above
-                                        Intent intent = getPackageManager().getLaunchIntentForPackage("com.spotify.music");
-                                        startActivity(intent);
-                                    })
-                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
-                                    .setCancelable(false)
-                                    .show();
-
-                            return;
-                        } else if (throwable instanceof com.spotify.android.appremote.api.error.UserNotAuthorizedException) {
-//                            new AlertDialog.Builder(MainActivity.this)
-//                                    .setTitle("Insufficient Permission!")
-//                                    .setMessage("You must allow Spotify to let us access your music choices!")
-//                                    .setNegativeButton("Close", (dialog, which) -> System.exit(0))
-//                                    .setCancelable(false)
-//                                    .show();
-                        }
-
-                        // Unhandled
-                        String message = throwable.getMessage();
-                        if (message != null) {
-                            Log.d("MainActivity", message);
-                        }
-                    }
-                });
-
-         */
     }
 
     public void startHomepageActivity() {
