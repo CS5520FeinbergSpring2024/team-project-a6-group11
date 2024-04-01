@@ -7,47 +7,39 @@
     tools:context=".HomepageActivity">
 
     <Button
+        android:id="@+id/viewProfileButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startProfileActivity"
+        android:text="@string/view_profile"
+        app:layout_constraintBottom_toTopOf="@+id/publicDiaryButton"
+        app:layout_constraintEnd_toStartOf="@+id/yourDiaryButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/yourDiaryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClickToDiaryBook"
         android:text="@string/your_diary"
-        app:layout_constraintBottom_toTopOf="@+id/publicEntriesTextView"
+        app:layout_constraintBottom_toTopOf="@+id/publicDiaryButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/viewProfileButton"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/viewProfileButton"
+        android:id="@+id/publicDiaryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="startProfileActivity"
-        android:text="@string/view_profile"
-        app:layout_constraintBottom_toTopOf="@+id/publicEntriesTextView"
-        app:layout_constraintEnd_toStartOf="@+id/yourDiaryButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/publicEntriesRecyclerView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:text="@string/public_diary"
+        android:onClick="startPublicDiaryActivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/publicEntriesTextView" />
-
-    <TextView
-        android:id="@+id/publicEntriesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/recent_public_diary_entries"
-        app:layout_constraintBottom_toTopOf="@+id/publicEntriesRecyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viewProfileButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

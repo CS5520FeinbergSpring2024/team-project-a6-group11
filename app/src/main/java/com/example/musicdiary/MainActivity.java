@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -20,12 +21,25 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
     private static final int REQUEST_CODE = 0;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     public static String accessToken;
+    private OkHttpClient client = new OkHttpClient();
+    public static String username;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 case TOKEN:
                     // Handle successful response
                     accessToken = response.getAccessToken();
-                    startHomepageActivity();
+                    handleResponse();
                     break;
 
                 // Auth flow returned an error
@@ -99,6 +113,40 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     // Handle other cases
             }
+        }
+    }
+
+    private void handleResponse() {
+        if (accessToken != null) {
+            Request request = new Request.Builder().url("https://api.spotify.com/v1/me")
+                    .addHeader("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        if (response.body() != null) {
+                            String responseString = response.body().string();
+                            System.out.println(responseString);
+                            JSONObject userData = new JSONObject(responseString);
+                            username = userData.getString("display_name");
+                            startHomepageActivity();
+                        }
+                    } catch (JSONException e) {
+                        runOnUiThread(() -> new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("This app is in development mode.")
+                                .setMessage("To log in, you must be registered in the Developer Dashboard.\nPlease contact chin.jef@northeastern.edu to have your email whitelisted.")
+                                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                                .show());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+                }
+            });
         }
     }
 
