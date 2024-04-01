@@ -5,6 +5,7 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -35,7 +36,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
-    private static final int REQUEST_CODE = 0;
+    // private static final int REQUEST_CODE = 0;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     public static String accessToken;
     private OkHttpClient client = new OkHttpClient();
@@ -87,6 +88,35 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        Uri uri = intent.getData();
+        if (uri != null) {
+            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
+
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    accessToken = response.getAccessToken();
+                    handleResponse();
+
+                    break;
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    Toast toast = Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
+                            "Please try again later.", Toast.LENGTH_SHORT);
+                    toast.show();
+                    break;
+                // Most likely auth flow was cancelled
+                default:
+                    // Handle other cases
+            }
+        }
+    }
+
+/*
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
@@ -115,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+ */
 
     private void handleResponse() {
         if (accessToken != null) {
@@ -156,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
         AuthorizationRequest request = builder.build();
 
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+        AuthorizationClient.openLoginInBrowser(this, request);
     }
 
     public void startHomepageActivity() {
