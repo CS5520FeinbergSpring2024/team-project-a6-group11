@@ -15,6 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.protocol.types.Track;
@@ -39,13 +44,19 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
     public static String accessToken;
     public static String username;
+
+    public static String userid;
     public static String profilePictureURL = null;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
 
+    public static DatabaseReference mDatabase;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -130,8 +141,11 @@ public class MainActivity extends AppCompatActivity {
                         if (response.body() != null) {
                             String responseString = response.body().string();
                             JSONObject userData = new JSONObject(responseString);
-
+                            userid = userData.getString("id");
                             username = userData.getString("display_name");
+
+                            // if not in database, store userid and username
+                            storeNewUsersToDatabase(userid, username);
 
                             try {
                                 JSONArray imagesArray = userData.getJSONArray("images");
@@ -171,5 +185,33 @@ public class MainActivity extends AppCompatActivity {
     public void startHomepageActivity() {
         Intent intent = new Intent(this, HomepageActivity.class);
         startActivity(intent);
+    }
+
+    private void storeNewUsersToDatabase(String userid, String username) {
+        mDatabase.child("diary_users").child(userid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    // User ID does not exist in the database
+                    // Store the user ID and username in the database
+                    mDatabase.child("diary_users").child(userid).child("username").setValue(username)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    // User data stored successfully
+                                    Toast.makeText(MainActivity.this, "User data stored successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Error occurred while storing user data
+                                    Toast.makeText(MainActivity.this, "Failed to store user data", Toast.LENGTH_SHORT).show();
+                                    Log.e("Firebase Error", "Failed to store user data", task.getException());
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }
