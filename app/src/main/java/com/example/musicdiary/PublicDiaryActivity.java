@@ -1,8 +1,15 @@
 package com.example.musicdiary;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import android.os.Bundle;
 
@@ -19,13 +26,33 @@ public class PublicDiaryActivity extends AppCompatActivity {
         RecyclerView publicEntriesRecyclerView = findViewById(R.id.publicEntriesRecyclerView);
 
         List<DiaryPreviewItem> testData = new ArrayList<>();
-        testData.add(new DiaryPreviewItem("test author 1", "1/1/01", "Track 1"));
-        testData.add(new DiaryPreviewItem("test author 2", "1/2/01", "Track 2"));
-        testData.add(new DiaryPreviewItem("test author 3", "1/3/01", "Track 3"));
-        testData.add(new DiaryPreviewItem("test author 4", "1/4/01", "Track 4"));
-        DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(testData);
 
-        publicEntriesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        publicEntriesRecyclerView.setAdapter(diaryBookAdapter);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("public_diary_entries");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot entry : dataSnapshot.getChildren()) {
+                        String author = entry.child("author").getValue(String.class);
+                        String trackName = entry.child("track").getValue(String.class);
+                        String date = entry.child("date").getValue(String.class);
+
+                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName);
+                        testData.add(diaryPreviewItem);
+                    }
+
+                    runOnUiThread(() -> {
+                        DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(testData);
+                        publicEntriesRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                        publicEntriesRecyclerView.setAdapter(diaryBookAdapter);
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }
