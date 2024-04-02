@@ -22,6 +22,7 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
     public static String accessToken;
     public static String username;
+    public static String profilePictureURL = null;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
 
@@ -127,9 +129,17 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         if (response.body() != null) {
                             String responseString = response.body().string();
-                            System.out.println(responseString);
                             JSONObject userData = new JSONObject(responseString);
+
                             username = userData.getString("display_name");
+
+                            try {
+                                JSONArray imagesArray = userData.getJSONArray("images");
+                                JSONObject imageObject = (JSONObject)imagesArray.get(imagesArray.length() - 1);
+                                profilePictureURL = imageObject.getString("url");
+                            } catch (JSONException jsonException) {
+                            }
+
                             startHomepageActivity();
                         }
                     } catch (JSONException e) {
