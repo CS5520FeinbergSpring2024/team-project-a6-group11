@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -10,5 +11,8 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        TextView textViewUsername = findViewById(R.id.textViewUsername);
+        textViewUsername.setText(MainActivity.username);
     }
 }

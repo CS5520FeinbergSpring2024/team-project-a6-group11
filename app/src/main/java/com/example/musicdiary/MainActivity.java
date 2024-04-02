@@ -36,11 +36,10 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
-    // private static final int REQUEST_CODE = 0;
-    private SpotifyAppRemote mSpotifyAppRemote = null;
     public static String accessToken;
-    private OkHttpClient client = new OkHttpClient();
     public static String username;
+    private SpotifyAppRemote mSpotifyAppRemote = null;
+    private OkHttpClient client = new OkHttpClient();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,38 +114,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-/*
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        // Check if result comes from the correct activity
-        if (requestCode == REQUEST_CODE) {
-            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
-
-            switch (response.getType()) {
-                // Response was successful and contains auth token
-                case TOKEN:
-                    // Handle successful response
-                    accessToken = response.getAccessToken();
-                    handleResponse();
-                    break;
-
-                // Auth flow returned an error
-                case ERROR:
-                    Toast toast = Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
-                            "Please try again later.", Toast.LENGTH_SHORT);
-                    toast.show();
-                    break;
-
-                // Most likely auth flow was cancelled
-                default:
-                    // Handle other cases
-            }
-        }
-    }
-
- */
 
     private void handleResponse() {
         if (accessToken != null) {
