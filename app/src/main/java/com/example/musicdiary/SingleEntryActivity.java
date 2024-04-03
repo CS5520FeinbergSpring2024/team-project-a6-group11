@@ -41,7 +41,6 @@ import okhttp3.Response;
 
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
-    TextView dateTextView;
     ImageButton albumImageView;
     TextView trackNameTextView;
     TextView artistTextView;
@@ -53,6 +52,9 @@ public class SingleEntryActivity extends AppCompatActivity {
     private DatabaseReference userDiaryReference;
     private DateTimeFormatter dateTimeFormatter;
     private String currentDate;
+    private String imageUrl;
+    private String trackName;
+    private String textPost;
     private static String currEntryId;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
@@ -72,6 +74,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
+        String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
@@ -93,22 +96,26 @@ public class SingleEntryActivity extends AppCompatActivity {
             Picasso.get().load(openedEntryCoverURL).into(albumImageView);
         }
 
+        if (openedEntryPostText != null){
+            extraTextView.setText(openedEntryPostText);
+        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         client = new OkHttpClient();
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == 0) {
-                Intent data = result.getData();
-                if (data != null) {
-                    String trackName = data.getStringExtra("trackName");
-                    String trackArtists = data.getStringExtra("trackArtists");
-
-                    trackEditText.setText(trackName);
-                    artistEditText.setText(trackArtists);
-                }
-            }
-        });
+//        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+//            if (result.getResultCode() == 0) {
+//                Intent data = result.getData();
+//                if (data != null) {
+//                    String trackName = data.getStringExtra("trackName");
+//                    String trackArtists = data.getStringExtra("trackArtists");
+//
+//                    trackEditText.setText(trackName);
+//                    artistEditText.setText(trackArtists);
+//                }
+//            }
+//        });
 
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
     }
@@ -145,13 +152,12 @@ public class SingleEntryActivity extends AppCompatActivity {
 
                         if (itemsArray.length() > 0) {
                             JSONObject firstItem = itemsArray.getJSONObject(0);
-                            String trackName = firstItem.getString("name");
+                            trackName = firstItem.getString("name");
                             Log.d("SingleEntry", "Track Name: " + trackName);
                             trackNameTextView.setText(trackName);
 
                             JSONObject album = firstItem.getJSONObject("album");
                             JSONArray imagesArray = album.getJSONArray("images");
-                            String imageUrl = "";
                             if (imagesArray.length() > 0) {
                                 JSONObject firstImage = imagesArray.getJSONObject(0);
                                 imageUrl = firstImage.getString("url");
@@ -178,15 +184,13 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 artistTextView.setText(allArtists);
                             }
 
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl);
-                            if (currEntryId == null) {
-                                currEntryId = userDiaryReference.push().getKey();
-                            }
-                            userDiaryReference.child(currEntryId).setValue(entry);
-//                            String entryID = userDiaryReference.push().getKey();
-//                            if (entryID != null) {
-//                                userDiaryReference.child(entryID).setValue(entry);
-//                            }
+                            textPost = newTextPost;
+                            extraTextView.setText(textPost);
+//
+////                            String entryID = userDiaryReference.push().getKey();
+////                            if (entryID != null) {
+////                                userDiaryReference.child(entryID).setValue(entry);
+////                            }
                         } else {
                             Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                         }
@@ -198,7 +202,11 @@ public class SingleEntryActivity extends AppCompatActivity {
 
                         return;
                     }
-                    extraTextView.setText(newTextPost);
+                    DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost);
+                    if (currEntryId == null) {
+                        currEntryId = userDiaryReference.push().getKey();
+                    }
+                    userDiaryReference.child(currEntryId).setValue(entry);
                 });
             }
         });

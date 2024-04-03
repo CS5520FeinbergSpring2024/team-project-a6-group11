@@ -8,15 +8,17 @@ public class DiaryPreviewItem {
     private String date;
     private String trackName;
     private String coverURL;
+    private String postText;
 
     public DiaryPreviewItem() {
     }
 
-    public DiaryPreviewItem(String author, String date, String trackName, String coverURL) {
+    public DiaryPreviewItem(String author, String date, String trackName, String coverURL, String postText) {
         this.author = author;
         this.date = date;
         this.trackName = trackName;
         this.coverURL = coverURL;
+        this.postText = postText;
     }
 
     public String getAuthor() {
@@ -51,7 +53,14 @@ public class DiaryPreviewItem {
         this.coverURL = coverURL;
     }
 
-    @NonNull
+    public String getPostText() {
+        return postText;
+    }
+
+    public void setPostText(String postText) {
+        this.postText = postText;
+    }
+
     @Override
     public String toString() {
         return "DiaryPreviewItem{" +
@@ -59,6 +68,7 @@ public class DiaryPreviewItem {
                 ", date='" + date + '\'' +
                 ", trackName='" + trackName + '\'' +
                 ", coverURL='" + coverURL + '\'' +
+                ", postText='" + postText + '\'' +
                 '}';
     }
 }
