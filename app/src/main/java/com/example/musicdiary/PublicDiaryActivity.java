@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import android.os.Bundle;
@@ -27,7 +26,7 @@ public class PublicDiaryActivity extends AppCompatActivity {
 
         List<DiaryPreviewItem> testData = new ArrayList<>();
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("public_diary_entries");
+        DatabaseReference databaseReference = MainActivity.mDatabase.child("public_diary_entries");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -36,8 +35,9 @@ public class PublicDiaryActivity extends AppCompatActivity {
                         String author = entry.child("author").getValue(String.class);
                         String trackName = entry.child("track").getValue(String.class);
                         String date = entry.child("date").getValue(String.class);
+                        String coverURL = entry.child("coverURL").getValue(String.class);
 
-                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName);
+                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName, coverURL);
                         testData.add(diaryPreviewItem);
                     }
 

@@ -44,14 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "com.example.musicdiary://callback";
     public static String accessToken;
     public static String username;
-
     public static String userid;
     public static String profilePictureURL = null;
     private SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
-
     public static DatabaseReference mDatabase;
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
         AuthorizationRequest.Builder builder =
                 new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
 
+        builder.setScopes(new String[]{"user-read-private", "user-read-email"});
+
         AuthorizationRequest request = builder.build();
 
         AuthorizationClient.openLoginInBrowser(this, request);
@@ -205,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
                                     Log.e("Firebase Error", "Failed to store user data", task.getException());
                                 }
                             });
+                } else {
+                    // If the user exists in the database, replace username with app username
+                    MainActivity.username = snapshot.child("username").getValue(String.class);
                 }
             }
 

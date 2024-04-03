@@ -57,6 +57,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         Intent intent = new Intent(context, SingleEntryActivity.class);
         intent.putExtra("openedEntryDate", diaryPreviewList.get(position).getDate());
         intent.putExtra("openedEntryTrackName", diaryPreviewList.get(position).getTrackName());
+        intent.putExtra("openedEntryCoverURL", diaryPreviewList.get(position).getCoverURL());
         context.startActivity(intent);
     }
 

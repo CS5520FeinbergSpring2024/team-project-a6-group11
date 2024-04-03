@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -49,6 +50,9 @@ public class SingleEntryActivity extends AppCompatActivity {
     EditText artistEditText;
     private static final String ACCESS_TOKEN = MainActivity.accessToken;
     private ActivityResultLauncher<Intent> activityResultLauncher;
+    private DatabaseReference userDiaryReference;
+    private DateTimeFormatter dateTimeFormatter;
+    private String currentDate;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
 
@@ -66,12 +70,15 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
+        String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
+
+        LocalDate localDate = LocalDate.now();
+        dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
+        currentDate = dateTimeFormatter.format(localDate);
 
         if (getSupportActionBar() != null) {
             if (openedEntryDate == null) {
-                LocalDate localDate = LocalDate.now();
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
-                getSupportActionBar().setTitle(dateTimeFormatter.format(localDate));
+                getSupportActionBar().setTitle(currentDate);
             } else {
                 getSupportActionBar().setTitle(openedEntryDate);
             }
@@ -79,6 +86,10 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         if (openedEntryTrackName != null) {
             trackNameTextView.setText(openedEntryTrackName);
+        }
+
+        if (openedEntryCoverURL != null) {
+            Picasso.get().load(openedEntryCoverURL).into(albumImageView);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -97,6 +108,8 @@ public class SingleEntryActivity extends AppCompatActivity {
                 }
             }
         });
+
+        userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
@@ -137,9 +150,10 @@ public class SingleEntryActivity extends AppCompatActivity {
 
                             JSONObject album = firstItem.getJSONObject("album");
                             JSONArray imagesArray = album.getJSONArray("images");
+                            String imageUrl = "";
                             if (imagesArray.length() > 0) {
                                 JSONObject firstImage = imagesArray.getJSONObject(0);
-                                String imageUrl = firstImage.getString("url");
+                                imageUrl = firstImage.getString("url");
                                 Log.d("SingleEntry", "Image URL: " + imageUrl);
                                 Picasso.get().load(imageUrl).into(albumImageView);
                             }
@@ -161,6 +175,12 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 }
                                 String allArtists = concatenatedArtists.toString();
                                 artistTextView.setText(allArtists);
+                            }
+
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl);
+                            String entryID = userDiaryReference.push().getKey();
+                            if (entryID != null) {
+                                userDiaryReference.child(entryID).setValue(entry);
                             }
                         } else {
                             Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
