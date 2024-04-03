@@ -53,6 +53,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     private DatabaseReference userDiaryReference;
     private DateTimeFormatter dateTimeFormatter;
     private String currentDate;
+    private static String currEntryId;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
 
@@ -178,10 +179,14 @@ public class SingleEntryActivity extends AppCompatActivity {
                             }
 
                             DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl);
-                            String entryID = userDiaryReference.push().getKey();
-                            if (entryID != null) {
-                                userDiaryReference.child(entryID).setValue(entry);
+                            if (currEntryId == null) {
+                                currEntryId = userDiaryReference.push().getKey();
                             }
+                            userDiaryReference.child(currEntryId).setValue(entry);
+//                            String entryID = userDiaryReference.push().getKey();
+//                            if (entryID != null) {
+//                                userDiaryReference.child(entryID).setValue(entry);
+//                            }
                         } else {
                             Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                         }
