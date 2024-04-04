@@ -160,6 +160,8 @@ public class SingleEntryActivity extends AppCompatActivity {
         });
 
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
+
+        MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
@@ -415,5 +417,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         pauseTrack();
+        MediaPlayerClient.mediaPlayer.setOnCompletionListener(null);
+        albumImageView.setOnClickListener(null);
     }
 }
