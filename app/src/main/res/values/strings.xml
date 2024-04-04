@@ -15,4 +15,6 @@
     <string name="your_diary">Your Diary</string>
     <string name="view_profile">View Profile</string>
     <string name="send">Send</string>
+    <string name="album_cover">Album cover</string>
+    <string name="edit">Edit</string>
 </resources>

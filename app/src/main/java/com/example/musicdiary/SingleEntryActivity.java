@@ -3,7 +3,9 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,14 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
+
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,14 +63,9 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String imageUrl;
     private String trackName;
     private String textPost;
-    private boolean isPlaying = false;
     private String trackURI;
     private static String currEntryId;
-    private SpotifyAppRemote mSpotifyAppRemote;
-
-//    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
     private String previewURL = null;
-    public static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,14 +103,14 @@ public class SingleEntryActivity extends AppCompatActivity {
         }
 
         if (openedEntryCoverURL != null) {
-            Picasso.get().load(openedEntryCoverURL).into(albumImageView);
+            loadAlbumImage(openedEntryCoverURL);
         }
 
         if (openedPreviewURL != null) {
             previewURL = openedPreviewURL;
         }
 
-        if (openedEntryPostText != null){
+        if (openedEntryPostText != null) {
             extraTextView.setText(openedEntryPostText);
         }
 
@@ -124,55 +118,18 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         client = new OkHttpClient();
 
-//        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-//            if (result.getResultCode() == 0) {
-//                Intent data = result.getData();
-//                if (data != null) {
-//                    String trackName = data.getStringExtra("trackName");
-//                    String trackArtists = data.getStringExtra("trackArtists");
-//
-//                    trackEditText.setText(trackName);
-//                    artistEditText.setText(trackArtists);
-//                }
-//            }
-//        });
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == 0) {
+                Intent data = result.getData();
+                if (data != null) {
+                    String trackName = data.getStringExtra("trackName");
+                    String trackArtists = data.getStringExtra("trackArtists");
 
-//        SpotifyAppRemote.connect(this, new ConnectionParams.Builder(MainActivity.CLIENT_ID)
-//                .setRedirectUri(MainActivity.REDIRECT_URI)
-//                .showAuthView(true)
-//                .build(), new Connector.ConnectionListener() {
-//            @Override
-//            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-//                mSpotifyAppRemote = spotifyAppRemote;
-//                Log.d("SpotifyAppRemote", "Connected to Spotify");
-//                albumImageView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        if (isPlaying == false) playMusic();
-//                        else if(isPlaying == true) stopMusic();
-//                    }
-//                });
-//
-//                mSpotifyAppRemote.getPlayerApi().
-//                        subscribeToPlayerState()
-//                        .setEventCallback(playerState -> {
-//                            boolean isPaused = playerState.isPaused;
-//                            if (isPaused) {
-//                                Log.d("Playstate", "Song is paused");
-//                            } else {
-//                                Log.d("Playstate", "Song is playing");
-//                            }
-//                        });
-//            }
-//
-//            @Override
-//            public void onFailure(Throwable throwable) {
-//                Log.e("SpotifyAppRemote", "Failed to connect to Spotify", throwable);
-//            }
-//        });
-
-
-
+                    trackEditText.setText(trackName);
+                    artistEditText.setText(trackArtists);
+                }
+            }
+        });
 
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
     }
@@ -201,59 +158,61 @@ public class SingleEntryActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Log.d("SingleEntry", "run on uni thread");
                     try {
-                        String jsonData = response.body().string();
-                        JSONObject resposneObject = new JSONObject(jsonData);
-                        Log.d("SingleEntry", "JSON Data: " + jsonData);
-                        JSONObject tracksObject = resposneObject.getJSONObject("tracks");
-                        JSONArray itemsArray = tracksObject.getJSONArray("items");
+                        if (response.body() != null) {
+                            String jsonData = response.body().string();
+                            JSONObject resposneObject = new JSONObject(jsonData);
+                            Log.d("SingleEntry", "JSON Data: " + jsonData);
+                            JSONObject tracksObject = resposneObject.getJSONObject("tracks");
+                            JSONArray itemsArray = tracksObject.getJSONArray("items");
 
-                        if (itemsArray.length() > 0) {
-                            JSONObject firstItem = itemsArray.getJSONObject(0);
-                            trackName = firstItem.getString("name");
-                            Log.d("SingleEntry", "Track Name: " + trackName);
-                            trackNameTextView.setText(trackName);
+                            if (itemsArray.length() > 0) {
+                                JSONObject firstItem = itemsArray.getJSONObject(0);
+                                trackName = firstItem.getString("name");
+                                Log.d("SingleEntry", "Track Name: " + trackName);
+                                trackNameTextView.setText(trackName);
 
-                            String trackUri = firstItem.getString("uri");
-                            Log.d("SingleEntry", "Track uri: " + trackURI);
-                            trackURI = trackUri;
+                                String trackUri = firstItem.getString("uri");
+                                Log.d("SingleEntry", "Track uri: " + trackURI);
+                                trackURI = trackUri;
 
-                            JSONObject album = firstItem.getJSONObject("album");
-                            JSONArray imagesArray = album.getJSONArray("images");
-                            if (imagesArray.length() > 0) {
-                                JSONObject firstImage = imagesArray.getJSONObject(0);
-                                imageUrl = firstImage.getString("url");
-                                Log.d("SingleEntry", "Image URL: " + imageUrl);
-                                Picasso.get().load(imageUrl).into(albumImageView);
-                            }
+                                JSONObject album = firstItem.getJSONObject("album");
+                                JSONArray imagesArray = album.getJSONArray("images");
+                                if (imagesArray.length() > 0) {
+                                    JSONObject firstImage = imagesArray.getJSONObject(0);
+                                    imageUrl = firstImage.getString("url");
+                                    Log.d("SingleEntry", "Image URL: " + imageUrl);
 
-                            JSONArray artistsArray = firstItem.getJSONArray("artists");
-
-                            if (artistsArray.length() > 0) {
-                                StringBuilder concatenatedArtists = new StringBuilder();
-                                for (int i = 0; i < artistsArray.length(); i++) {
-                                    JSONObject artistObject = artistsArray.getJSONObject(i);
-                                    String artistName = artistObject.getString("name");
-
-                                    concatenatedArtists.append(artistName);
-                                    if (i < artistsArray.length() - 1) {
-                                        concatenatedArtists.append(", ");
-                                    }
-                                    Log.d("SingleEntry", "Artist Name: " + artistName);
-
+                                    loadAlbumImage(imageUrl);
                                 }
-                                String allArtists = concatenatedArtists.toString();
-                                artistTextView.setText(allArtists);
+
+                                JSONArray artistsArray = firstItem.getJSONArray("artists");
+
+                                if (artistsArray.length() > 0) {
+                                    StringBuilder concatenatedArtists = new StringBuilder();
+                                    for (int i = 0; i < artistsArray.length(); i++) {
+                                        JSONObject artistObject = artistsArray.getJSONObject(i);
+                                        String artistName = artistObject.getString("name");
+
+                                        concatenatedArtists.append(artistName);
+                                        if (i < artistsArray.length() - 1) {
+                                            concatenatedArtists.append(", ");
+                                        }
+                                        Log.d("SingleEntry", "Artist Name: " + artistName);
+
+                                    }
+                                    String allArtists = concatenatedArtists.toString();
+                                    artistTextView.setText(allArtists);
+                                }
+                                textPost = newTextPost;
+                                extraTextView.setText(textPost);
+
+                                if (firstItem.has("preview_url")) {
+                                    previewURL = firstItem.getString("preview_url");
+                                }
+
+                            } else {
+                                Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                             }
-                            textPost = newTextPost;
-                            extraTextView.setText(textPost);
-
-                        String previewURL = null;
-                        if (firstItem.has("preview_url")) {
-                            previewURL = firstItem.getString("preview_url");
-                        }
-
-                        } else {
-                            Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException | IOException exception) {
                         runOnUiThread(() -> {
@@ -268,48 +227,44 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     private void checkEntryExists(String currentDate) {
-        userDiaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            DataSnapshot snapshot = task.getResult();
-                            if (snapshot.exists()) {
-                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                                    String entryKey = dataSnapshot.getKey();
-                                    Log.d("Firebase", "Entry with key " + entryKey + " exists. Updating entry.");
-                                    updateExistingEntry(entryKey, trackName, imageUrl, textPost);
-                                }
-                            } else {
-                                Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
-                                DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost);
-                                currEntryId = userDiaryReference.push().getKey();
-                                userDiaryReference.child(currEntryId).setValue(entry);
-                                Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
+        userDiaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    } else {
+                        DataSnapshot snapshot = task.getResult();
+                        if (snapshot.exists()) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                String entryKey = dataSnapshot.getKey();
+                                Log.d("Firebase", "Entry with key " + entryKey + " exists. Updating entry.");
+                                updateExistingEntry(entryKey, trackName, imageUrl, previewURL, textPost);
                             }
+                        } else {
+                            Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, previewURL, textPost);
+                            currEntryId = userDiaryReference.push().getKey();
+                            if (currEntryId != null) {
+                                userDiaryReference.child(currEntryId).setValue(entry);
+                            }
+                            Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
         );
     }
 
-    private void updateExistingEntry(String entryKey, String newTrack, String newImageUrl, String newTextPost) {
+    private void updateExistingEntry(String entryKey, String newTrack, String newImageUrl, String newPreviewURL, String newTextPost) {
         Map<String, Object> updateFields = new HashMap<>();
         updateFields.put("trackName", newTrack);
         updateFields.put("coverURL", newImageUrl);
+        updateFields.put("previewURL", newPreviewURL);
         updateFields.put("postText", newTextPost);
 
         userDiaryReference.child(entryKey).updateChildren(updateFields)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(SingleEntryActivity.this, "Entry updated successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SingleEntryActivity.this, "Failed to update entry", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(SingleEntryActivity.this, "Entry updated successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SingleEntryActivity.this, "Failed to update entry", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -327,7 +282,7 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         trackEditText = view.findViewById(R.id.trackNameEditText);
         artistEditText = view.findViewById(R.id.artistEditText);
-//        EditText albumEditText = view.findViewById(R.id.albumEditText);
+
         EditText textPostEditText = view.findViewById(R.id.textPostEditText);
 
         Button searchMusicButton = view.findViewById(R.id.searchMusicButton);
@@ -344,7 +299,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
                 updateEntryData(newTrack, newArtist, newTextPost);
             } else {
-                Toast.makeText(SingleEntryActivity.this, "PLease enter track name and artist name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleEntryActivity.this, "Please enter track name and artist name", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -353,38 +308,61 @@ public class SingleEntryActivity extends AppCompatActivity {
         return builder.create();
     }
 
-//        private void playMusic() {
-//        if (trackURI != null) {
-//            mSpotifyAppRemote.getPlayerApi().play(trackURI);
-//            Log.d("PlayMusic", "Music is playing");
-//        } else {
-//            Log.d("PlayMusic", "Failed to play music: trackId is null");
-//        }
-//        isPlaying = true;
-//
-//    }
-//
-//    private void stopMusic() {
-//        mSpotifyAppRemote.getPlayerApi().pause();
-//        isPlaying = false;
-//        Log.d("PlayMusic", "Music playback paused");
-//    }
+    private void loadAlbumImage(String imageURL) {
+        Picasso.get().load(imageURL).into(new Target() {
 
-    private void onClickAlbumCover(View view) {
-        System.out.println(previewURL);
-        if (previewURL == null) {
-            return;
-        }
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                albumImageView.setBackground(new BitmapDrawable(getResources(), bitmap));
+            }
 
-        try {
-            mediaPlayer.stop();
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(previewURL);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException ioException) {
-            Toast toast = Toast.makeText(this, "Failed to play the preview of the song!", Toast.LENGTH_SHORT);
-            toast.show();
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
+    }
+
+    public void onClickAlbumCover(View view) {
+        if (previewURL != null) {
+            if (previewURL.equals("null")) { // no preview available
+                Toast toast = Toast.makeText(this, "Preview unavailable for this track.", Toast.LENGTH_SHORT);
+                toast.show();
+                return;
+            }
+            if (!MediaPlayerClient.mediaPlayer.isPlaying()) {
+                playTrack();
+            } else {
+                pauseTrack();
+            }
         }
+    }
+
+    private void playTrack() {
+        MediaPlayerClient.playTrack(previewURL, this);
+        albumImageView.setImageResource(android.R.drawable.ic_media_pause);
+    }
+
+    private void pauseTrack() {
+        MediaPlayerClient.resetMediaPlayer();
+        albumImageView.setImageResource(android.R.drawable.ic_media_play);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pauseTrack();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        pauseTrack();
     }
 }

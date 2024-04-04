@@ -77,19 +77,19 @@ public class TracklistFragment extends Fragment implements TrackRecyclerViewAdap
     @Override
     public void onPause() {
         super.onPause();
-        TrackRecyclerViewAdapter.mediaPlayer.pause();
+        MediaPlayerClient.mediaPlayer.pause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        TrackRecyclerViewAdapter.mediaPlayer.start();
+        MediaPlayerClient.mediaPlayer.start();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        TrackRecyclerViewAdapter.mediaPlayer.stop();
+        MediaPlayerClient.mediaPlayer.stop();
     }
 
     @Override

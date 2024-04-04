@@ -7,7 +7,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import com.example.musicdiary.databinding.FragmentTrackBinding;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -27,14 +25,13 @@ import java.util.List;
  */
 public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.ViewHolder> {
     private final List<TrackItem> trackItems;
-    public static final MediaPlayer mediaPlayer = new MediaPlayer();
     private int lastPlayingTrackPosition = -1;
     private final OnAddButtonPressedListener onAddButtonPressedListener;
 
     public TrackRecyclerViewAdapter(List<TrackItem> trackItems, OnAddButtonPressedListener onAddButtonPressedListener) {
         this.trackItems = trackItems;
         this.onAddButtonPressedListener = onAddButtonPressedListener;
-        mediaPlayer.setOnCompletionListener(mp -> {
+        MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> {
             if (lastPlayingTrackPosition != -1) {
                 notifyItemChanged(lastPlayingTrackPosition);
                 lastPlayingTrackPosition = -1;
@@ -90,29 +87,20 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         }
 
         holder.playButton.setOnClickListener(view -> AsyncTask.execute(() -> {
-                    try {
-                        if (trackItems.get(position).trackPreviewURL.equals("null")) {
-                            view.post(() -> {
-                                Toast toast = Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT);
-                                toast.show();
-                            });
-                        } else if (lastPlayingTrackPosition == currentPosition) {
-                            mediaPlayer.pause();
-                            lastPlayingTrackPosition = -1;
-                        } else {
-                            resetMediaPlayer();
-                            mediaPlayer.setDataSource(trackItems.get(position).trackPreviewURL);
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-                            lastPlayingTrackPosition = currentPosition;
-                        }
-                        view.post(this::notifyDataSetChanged);
-                    } catch (IOException ioException) {
+                    if (trackItems.get(position).trackPreviewURL.equals("null")) {
                         view.post(() -> {
-                            Toast toast = Toast.makeText(view.getContext(), "Failed to play the song preview!", Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT);
                             toast.show();
                         });
+                    } else if (lastPlayingTrackPosition == currentPosition) {
+                        MediaPlayerClient.mediaPlayer.pause();
+                        lastPlayingTrackPosition = -1;
+                    } else {
+                        String previewURL = trackItems.get(position).trackPreviewURL;
+                        MediaPlayerClient.playTrack(previewURL, view.getContext());
+                        lastPlayingTrackPosition = currentPosition;
                     }
+                    view.post(this::notifyDataSetChanged);
                 })
         );
 
@@ -126,11 +114,6 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     @Override
     public int getItemCount() {
         return trackItems.size();
-    }
-
-    private void resetMediaPlayer() {
-        mediaPlayer.stop();
-        mediaPlayer.reset();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

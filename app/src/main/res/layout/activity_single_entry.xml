@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/diaryToolbar"
@@ -15,18 +13,18 @@
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <ImageButton
         android:id="@+id/albumCoverButton"
         android:layout_width="282dp"
         android:layout_height="299dp"
         android:layout_marginTop="72dp"
-        android:backgroundTint="@color/white"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diaryToolbar"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        app:srcCompat="@android:drawable/ic_media_play"
+        android:contentDescription="@string/album_cover" />
 
     <TextView
         android:id="@+id/trackTitleTextView"
@@ -73,13 +71,11 @@
 
     </androidx.cardview.widget.CardView>
 
-
-
     <Button
         android:id="@+id/updateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit"
+        android:text="@string/edit"
         android:onClick="onClickUpdateEntry"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +83,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView7"
         app:layout_constraintVertical_bias="0.5" />
-
 
     <!--    <ImageButton-->
     <!--        android:id="@+id/privacySettingsButton"-->
