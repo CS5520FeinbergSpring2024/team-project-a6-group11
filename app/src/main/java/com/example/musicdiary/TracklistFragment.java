@@ -97,6 +97,7 @@ public class TracklistFragment extends Fragment implements TrackRecyclerViewAdap
         Intent intent = new Intent();
         intent.putExtra("trackName", trackItem.getTrackName());
         intent.putExtra("trackArtists", trackItem.getTrackArtists());
+        intent.putExtra("previewURL", trackItem.getTrackPreviewURL());
         requireActivity().setResult(0, intent);
         requireActivity().finish();
     }

@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -69,6 +70,8 @@ public class SingleEntryActivity extends AppCompatActivity {
     private SpotifyAppRemote mSpotifyAppRemote;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
+    private String previewURL = null;
+    public static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,6 +79,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_entry);
 
         albumImageView = findViewById(R.id.albumCoverButton);
+        albumImageView.setOnClickListener(this::onClickAlbumCover);
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
@@ -86,6 +90,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
         String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
+        String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
@@ -105,6 +110,10 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         if (openedEntryCoverURL != null) {
             Picasso.get().load(openedEntryCoverURL).into(albumImageView);
+        }
+
+        if (openedPreviewURL != null) {
+            previewURL = openedPreviewURL;
         }
 
         if (openedEntryPostText != null){
@@ -184,7 +193,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(SingleEntryActivity.this, "Failed to search track", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleEntryActivity.this, "Failed to search for a track", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -238,6 +247,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                             textPost = newTextPost;
                             extraTextView.setText(textPost);
 
+                        String previewURL = null;
+                        if (firstItem.has("preview_url")) {
+                            previewURL = firstItem.getString("preview_url");
+                        }
 
                         } else {
                             Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
@@ -326,7 +339,6 @@ public class SingleEntryActivity extends AppCompatActivity {
         builder.setPositiveButton("Update Entry", (dialog, id) -> {
             String newTrack = trackEditText.getText().toString().trim();
             String newArtist = artistEditText.getText().toString().trim();
-//                String newAlbum = albumEditText.getText().toString().trim();
             String newTextPost = textPostEditText.getText().toString().trim();
 
             if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
@@ -357,4 +369,22 @@ public class SingleEntryActivity extends AppCompatActivity {
 //        isPlaying = false;
 //        Log.d("PlayMusic", "Music playback paused");
 //    }
+
+    private void onClickAlbumCover(View view) {
+        System.out.println(previewURL);
+        if (previewURL == null) {
+            return;
+        }
+
+        try {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(previewURL);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException ioException) {
+            Toast toast = Toast.makeText(this, "Failed to play the preview of the song!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
 }

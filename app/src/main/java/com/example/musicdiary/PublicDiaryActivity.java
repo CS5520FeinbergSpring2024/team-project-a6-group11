@@ -37,8 +37,9 @@ public class PublicDiaryActivity extends AppCompatActivity {
                         String date = entry.child("date").getValue(String.class);
                         String coverURL = entry.child("coverURL").getValue(String.class);
                         String postText = entry.child("postText").getValue(String.class);
+                        String previewURL = entry.child("previewURL").getValue(String.class);
 
-                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName, coverURL, postText);
+                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName, coverURL, postText, previewURL);
                         testData.add(diaryPreviewItem);
                     }
 
