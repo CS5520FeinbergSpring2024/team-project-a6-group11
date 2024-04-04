@@ -20,6 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
@@ -32,6 +35,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -77,7 +82,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
 
         LocalDate localDate = LocalDate.now();
-        dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
+        dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         currentDate = dateTimeFormatter.format(localDate);
 
         if (getSupportActionBar() != null) {
@@ -166,7 +171,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                             }
 
                             JSONArray artistsArray = firstItem.getJSONArray("artists");
-//
+
                             if (artistsArray.length() > 0) {
                                 StringBuilder concatenatedArtists = new StringBuilder();
                                 for (int i = 0; i < artistsArray.length(); i++) {
@@ -183,14 +188,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 String allArtists = concatenatedArtists.toString();
                                 artistTextView.setText(allArtists);
                             }
-
                             textPost = newTextPost;
                             extraTextView.setText(textPost);
-//
-////                            String entryID = userDiaryReference.push().getKey();
-////                            if (entryID != null) {
-////                                userDiaryReference.child(entryID).setValue(entry);
-////                            }
+
+
                         } else {
                             Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
                         }
@@ -199,17 +200,58 @@ public class SingleEntryActivity extends AppCompatActivity {
                             Toast toast = Toast.makeText(getApplicationContext(), "Failed to update the playlist information!", Toast.LENGTH_SHORT);
                             toast.show();
                         });
-
-                        return;
                     }
-                    DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost);
-                    if (currEntryId == null) {
-                        currEntryId = userDiaryReference.push().getKey();
-                    }
-                    userDiaryReference.child(currEntryId).setValue(entry);
+                    checkEntryExists(currentDate);
                 });
             }
         });
+    }
+
+    private void checkEntryExists(String currentDate) {
+        userDiaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        }
+                        else {
+                            DataSnapshot snapshot = task.getResult();
+                            if (snapshot.exists()) {
+                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                    String entryKey = dataSnapshot.getKey();
+                                    Log.d("Firebase", "Entry with key " + entryKey + " exists. Updating entry.");
+                                    updateExistingEntry(entryKey, trackName, imageUrl, textPost);
+                                }
+                            } else {
+                                Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
+                                DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost);
+                                currEntryId = userDiaryReference.push().getKey();
+                                userDiaryReference.child(currEntryId).setValue(entry);
+                                Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
+    private void updateExistingEntry(String entryKey, String newTrack, String newImageUrl, String newTextPost) {
+        Map<String, Object> updateFields = new HashMap<>();
+        updateFields.put("trackName", newTrack);
+        updateFields.put("coverUrl", newImageUrl);
+        updateFields.put("postText", newTextPost);
+
+        userDiaryReference.child(entryKey).updateChildren(updateFields)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SingleEntryActivity.this, "Entry updated successfully", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SingleEntryActivity.this, "Failed to update entry", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     public void onClickUpdateEntry(View view) {

@@ -2,6 +2,9 @@ package com.example.musicdiary;
 
 import androidx.annotation.NonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DiaryPreviewItem {
 
     private String author;
@@ -60,6 +63,17 @@ public class DiaryPreviewItem {
     public void setPostText(String postText) {
         this.postText = postText;
     }
+
+//    public Map<String, Object> toMap() {
+//        HashMap<String, Object> result = new HashMap<>();
+//        result.put("author", author);
+//        result.put("coverURL", coverURL);
+//        result.put("date", date);
+//        result.put("postText", postText);
+//        result.put("trackName", trackName);
+//
+//        return result;
+//    }
 
     @Override
     public String toString() {
