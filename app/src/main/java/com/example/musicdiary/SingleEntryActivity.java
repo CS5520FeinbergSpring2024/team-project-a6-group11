@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,7 +42,6 @@ import okhttp3.Response;
 
 public class SingleEntryActivity extends AppCompatActivity {
     OkHttpClient client;
-    TextView dateTextView;
     ImageButton albumImageView;
     TextView trackNameTextView;
     TextView artistTextView;
@@ -54,8 +54,8 @@ public class SingleEntryActivity extends AppCompatActivity {
     private DateTimeFormatter dateTimeFormatter;
     private String currentDate;
     private static String currEntryId;
-
-//    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
+    private String previewURL = null;
+    public static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +63,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_entry);
 
         albumImageView = findViewById(R.id.albumCoverButton);
+        albumImageView.setOnClickListener(this::onClickAlbumCover);
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
@@ -72,6 +73,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
+        String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy ☀");
@@ -91,6 +93,10 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         if (openedEntryCoverURL != null) {
             Picasso.get().load(openedEntryCoverURL).into(albumImageView);
+        }
+
+        if (openedPreviewURL != null) {
+            previewURL = openedPreviewURL;
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -129,13 +135,12 @@ public class SingleEntryActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(SingleEntryActivity.this, "Failed to search track", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleEntryActivity.this, "Failed to search for a track", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 runOnUiThread(() -> {
-                    Log.d("SingleEntry", "run on uni thread");
                     try {
                         String jsonData = response.body().string();
                         JSONObject resposneObject = new JSONObject(jsonData);
@@ -143,53 +148,54 @@ public class SingleEntryActivity extends AppCompatActivity {
                         JSONObject tracksObject = resposneObject.getJSONObject("tracks");
                         JSONArray itemsArray = tracksObject.getJSONArray("items");
 
-                        if (itemsArray.length() > 0) {
-                            JSONObject firstItem = itemsArray.getJSONObject(0);
-                            String trackName = firstItem.getString("name");
-                            Log.d("SingleEntry", "Track Name: " + trackName);
-                            trackNameTextView.setText(trackName);
+                        if (itemsArray.length() == 0) {
+                            Toast toast = Toast.makeText(SingleEntryActivity.this, "No tracks were found", Toast.LENGTH_SHORT);
+                            toast.show();
 
-                            JSONObject album = firstItem.getJSONObject("album");
-                            JSONArray imagesArray = album.getJSONArray("images");
-                            String imageUrl = "";
-                            if (imagesArray.length() > 0) {
-                                JSONObject firstImage = imagesArray.getJSONObject(0);
-                                imageUrl = firstImage.getString("url");
-                                Log.d("SingleEntry", "Image URL: " + imageUrl);
-                                Picasso.get().load(imageUrl).into(albumImageView);
-                            }
+                            extraTextView.setText(newTextPost);
 
-                            JSONArray artistsArray = firstItem.getJSONArray("artists");
-//
-                            if (artistsArray.length() > 0) {
-                                StringBuilder concatenatedArtists = new StringBuilder();
-                                for (int i = 0; i < artistsArray.length(); i++) {
-                                    JSONObject artistObject = artistsArray.getJSONObject(i);
-                                    String artistName = artistObject.getString("name");
-
-                                    concatenatedArtists.append(artistName);
-                                    if (i < artistsArray.length() - 1) {
-                                        concatenatedArtists.append(", ");
-                                    }
-                                    Log.d("SingleEntry", "Artist Name: " + artistName);
-
-                                }
-                                String allArtists = concatenatedArtists.toString();
-                                artistTextView.setText(allArtists);
-                            }
-
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl);
-                            if (currEntryId == null) {
-                                currEntryId = userDiaryReference.push().getKey();
-                            }
-                            userDiaryReference.child(currEntryId).setValue(entry);
-//                            String entryID = userDiaryReference.push().getKey();
-//                            if (entryID != null) {
-//                                userDiaryReference.child(entryID).setValue(entry);
-//                            }
-                        } else {
-                            Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
+                        JSONObject firstItem = itemsArray.getJSONObject(0);
+                        String trackName = firstItem.getString("name");
+                        trackNameTextView.setText(trackName);
+                        JSONObject album = firstItem.getJSONObject("album");
+                        JSONArray imagesArray = album.getJSONArray("images");
+
+                        String imageUrl = "";
+                        if (imagesArray.length() > 0) {
+                            JSONObject firstImage = imagesArray.getJSONObject(0);
+                            imageUrl = firstImage.getString("url");
+                            Picasso.get().load(imageUrl).into(albumImageView);
+                        }
+
+                        JSONArray artistsArray = firstItem.getJSONArray("artists");
+                        if (artistsArray.length() > 0) {
+                            StringBuilder concatenatedArtists = new StringBuilder();
+                            for (int i = 0; i < artistsArray.length(); i++) {
+                                JSONObject artistObject = artistsArray.getJSONObject(i);
+                                String artistName = artistObject.getString("name");
+
+                                concatenatedArtists.append(artistName);
+                                if (i < artistsArray.length() - 1) {
+                                    concatenatedArtists.append(", ");
+                                }
+                            }
+                            String allArtists = concatenatedArtists.toString();
+                            artistTextView.setText(allArtists);
+                        }
+
+                        String previewURL = null;
+                        if (firstItem.has("preview_url")) {
+                            previewURL = firstItem.getString("preview_url");
+                        }
+
+                        DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, previewURL);
+                        if (currEntryId == null) {
+                            currEntryId = userDiaryReference.push().getKey();
+                        }
+                        userDiaryReference.child(currEntryId).setValue(entry);
                     } catch (JSONException | IOException exception) {
                         runOnUiThread(() -> {
                             Toast toast = Toast.makeText(getApplicationContext(), "Failed to update the playlist information!", Toast.LENGTH_SHORT);
@@ -229,18 +235,35 @@ public class SingleEntryActivity extends AppCompatActivity {
         builder.setPositiveButton("Update Entry", (dialog, id) -> {
             String newTrack = trackEditText.getText().toString().trim();
             String newArtist = artistEditText.getText().toString().trim();
-//                String newAlbum = albumEditText.getText().toString().trim();
             String newTextPost = textPostEditText.getText().toString().trim();
 
             if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
                 updateEntryData(newTrack, newArtist, newTextPost);
             } else {
-                Toast.makeText(SingleEntryActivity.this, "PLease enter track name and artist name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleEntryActivity.this, "Please enter track name and artist name", Toast.LENGTH_SHORT).show();
             }
         });
 
         builder.setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
 
         return builder.create();
+    }
+
+    private void onClickAlbumCover(View view) {
+        System.out.println(previewURL);
+        if (previewURL == null) {
+            return;
+        }
+
+        try {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(previewURL);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException ioException) {
+            Toast toast = Toast.makeText(this, "Failed to play the preview of the song!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }

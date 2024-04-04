@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PublicDiaryActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +35,9 @@ public class PublicDiaryActivity extends AppCompatActivity {
                         String trackName = entry.child("track").getValue(String.class);
                         String date = entry.child("date").getValue(String.class);
                         String coverURL = entry.child("coverURL").getValue(String.class);
+                        String previewURL = entry.child("previewURL").getValue(String.class);
 
-                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName, coverURL);
+                        DiaryPreviewItem diaryPreviewItem = new DiaryPreviewItem(author, date, trackName, coverURL, previewURL);
                         testData.add(diaryPreviewItem);
                     }
 
