@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,28 +28,28 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         TextView dateTextView;
         TextView trackNameTextView;
         TextView authorTextView;
-        Button viewEntryButton;
-        Button sendEntryButton;
+        ImageButton sendEntryButton;
 
         public DiaryPreviewViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
             trackNameTextView = itemView.findViewById(R.id.trackNameTextView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
-            viewEntryButton = itemView.findViewById(R.id.viewEntryButton);
             sendEntryButton = itemView.findViewById(R.id.sendEntryButton);
 
-            viewEntryButton.setOnClickListener(this);
+            itemView.setOnClickListener(this);
             sendEntryButton.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             Context context = view.getContext();
-            if (view == viewEntryButton) {
-                viewEntry(context, getAdapterPosition());
-            } else if (view == sendEntryButton) {
-                sendEntry(context, getAdapterPosition());
+            int position = getAdapterPosition();
+
+            if (view == sendEntryButton) {
+                sendEntry(context, position);
+            } else {
+                viewEntry(context, position);
             }
         }
     }
