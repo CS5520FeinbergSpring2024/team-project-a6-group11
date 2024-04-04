@@ -232,6 +232,12 @@ public class SingleEntryActivity extends AppCompatActivity {
 
                                 textPost = newTextPost;
 
+                                // Replace extras with updated data
+                                getIntent().putExtra("openedEntryTrackName", trackName);
+                                getIntent().putExtra("openedEntryCoverURL", imageUrl);
+                                getIntent().putExtra("openedEntryPostText", textPost);
+                                getIntent().putExtra("openedPreviewURL", previewURL);
+
                                 checkEntryExists(currentDate); // in the database
                             } else {
                                 Toast.makeText(SingleEntryActivity.this, "Could not find the given track.", Toast.LENGTH_SHORT).show();
