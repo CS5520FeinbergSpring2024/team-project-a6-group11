@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -94,7 +96,7 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
 
     private void onClickSearch() {
         String searchQuery = editTextSearch.getText().toString();
-        if (searchQuery.equals("")) {
+        if (searchQuery.trim().isEmpty()) { // Prevent search queries with only whitespaces
             Toast toast = Toast.makeText(this, "Please enter " + (searchType.equals("artist") ? "an artist" : "a " + searchType) + " to search for!", Toast.LENGTH_SHORT);
             toast.show();
 
@@ -180,20 +182,35 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
+    private String encodeString(String string) {
+        try {
+            return URLEncoder.encode(string, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
     private void getTracksByTitle(String title) {
-        getFilteredTracks("track:" + title);
+        getFilteredTracks("track:", title);
     }
 
     private void getTracksByGenre(String genre) {
-        getFilteredTracks("genre:" + genre);
+        getFilteredTracks("genre:", genre);
     }
 
     private void getTracksByArtist(String artist) {
-        getFilteredTracks("artist:" + artist);
+        getFilteredTracks("artist:", artist);
     }
 
-    private void getFilteredTracks(String filter) {
-        Request request = new Request.Builder().url("https://api.spotify.com/v1/search?type=track&q=" + filter)
+    private void getFilteredTracks(String filter, String query) {
+        String encodedQuery = encodeString(query);
+
+        if (encodedQuery == null) {
+            Toast.makeText(this, "Please provide a valid search query.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Request request = new Request.Builder().url("https://api.spotify.com/v1/search?type=track&q=" + filter + encodedQuery)
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .build();
 
