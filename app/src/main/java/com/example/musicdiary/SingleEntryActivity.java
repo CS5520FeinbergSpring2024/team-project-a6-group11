@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String trackURI;
     private static String currEntryId;
     private String previewURL = null;
+    private LocalDate openedEntryLocalDate;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
+        Button updateButton = findViewById(R.id.updateButton);
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
 
@@ -93,8 +96,20 @@ public class SingleEntryActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             if (openedEntryDate == null) {
                 getSupportActionBar().setTitle(currentDate);
+                openedEntryLocalDate = localDate;
+                updateButton.setVisibility(View.VISIBLE);
             } else {
                 getSupportActionBar().setTitle(openedEntryDate);
+
+                try {
+                    openedEntryLocalDate = LocalDate.parse(openedEntryDate, dateTimeFormatter);
+                    // only allow users to update an entry if the current date matches the entry date
+                    if (localDate.equals(openedEntryLocalDate)) {
+                        updateButton.setVisibility(View.VISIBLE);
+                    }
+                } catch (DateTimeParseException ignored) {
+
+                }
             }
         }
 
@@ -211,7 +226,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 }
 
                             } else {
-                                Toast.makeText(SingleEntryActivity.this, "No tracks found", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SingleEntryActivity.this, "No tracks were found", Toast.LENGTH_SHORT).show();
                             }
                         }
                     } catch (JSONException | IOException exception) {
@@ -296,10 +311,15 @@ public class SingleEntryActivity extends AppCompatActivity {
             String newArtist = artistEditText.getText().toString().trim();
             String newTextPost = textPostEditText.getText().toString().trim();
 
+            if (!LocalDate.now().equals(openedEntryLocalDate)) { // if the date has changed while on this activity
+                Toast.makeText(SingleEntryActivity.this, "You can only edit today's entry!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
                 updateEntryData(newTrack, newArtist, newTextPost);
             } else {
-                Toast.makeText(SingleEntryActivity.this, "Please enter track name and artist name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleEntryActivity.this, "Please enter a track name and an artist name.", Toast.LENGTH_SHORT).show();
             }
         });
 
