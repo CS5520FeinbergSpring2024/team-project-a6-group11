@@ -43,10 +43,7 @@ public class DiaryPreviewItem {
         return postText;
     }
 
-    public void setPostText(String postText) {
-        this.postText = postText;
-    }
-
+    @NonNull
     @Override
     public String toString() {
         return "DiaryPreviewItem{" +

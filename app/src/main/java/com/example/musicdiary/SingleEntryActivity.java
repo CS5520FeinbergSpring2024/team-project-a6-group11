@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -66,8 +67,9 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String textPost;
     private String trackURI;
     private static String currEntryId;
-    private String previewURL = null;
+    private String previewURL;
     private LocalDate openedEntryLocalDate;
+    private CardView postTextCardView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         trackNameTextView = findViewById(R.id.trackTitleTextView);
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
+        postTextCardView = findViewById(R.id.postTextCardView);
         Button updateButton = findViewById(R.id.updateButton);
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
@@ -119,14 +122,18 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         if (openedEntryCoverURL != null) {
             loadAlbumImage(openedEntryCoverURL);
+        } else {
+            albumImageView.setVisibility(View.INVISIBLE);
         }
 
         if (openedPreviewURL != null) {
             previewURL = openedPreviewURL;
         }
 
-        if (openedEntryPostText != null) {
+        if (openedEntryPostText != null && !openedEntryPostText.isEmpty()) {
             extraTextView.setText(openedEntryPostText);
+        } else {
+            postTextCardView.setVisibility(View.INVISIBLE);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -218,15 +225,16 @@ public class SingleEntryActivity extends AppCompatActivity {
                                     String allArtists = concatenatedArtists.toString();
                                     artistTextView.setText(allArtists);
                                 }
-                                textPost = newTextPost;
-                                extraTextView.setText(textPost);
 
                                 if (firstItem.has("preview_url")) {
                                     previewURL = firstItem.getString("preview_url");
                                 }
 
+                                textPost = newTextPost;
+
+                                checkEntryExists(currentDate); // in the database
                             } else {
-                                Toast.makeText(SingleEntryActivity.this, "No tracks were found", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SingleEntryActivity.this, "Could not find the given track.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     } catch (JSONException | IOException exception) {
@@ -235,7 +243,6 @@ public class SingleEntryActivity extends AppCompatActivity {
                             toast.show();
                         });
                     }
-                    checkEntryExists(currentDate);
                 });
             }
         });
@@ -255,13 +262,24 @@ public class SingleEntryActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, previewURL, textPost);
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost, previewURL);
                             currEntryId = userDiaryReference.push().getKey();
                             if (currEntryId != null) {
                                 userDiaryReference.child(currEntryId).setValue(entry);
                             }
                             Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
                         }
+
+                        runOnUiThread(() -> {
+                            albumImageView.setVisibility(View.VISIBLE);
+
+                            if (!textPost.isEmpty()) {
+                                extraTextView.setText(textPost);
+                                postTextCardView.setVisibility(View.VISIBLE);
+                            } else {
+                                postTextCardView.setVisibility(View.INVISIBLE);
+                            }
+                        });
                     }
                 }
         );
