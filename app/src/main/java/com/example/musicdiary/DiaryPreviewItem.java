@@ -6,16 +6,18 @@ public class DiaryPreviewItem {
     private String author;
     private String date;
     private String trackName;
+    private String trackArtists;
     private String coverURL;
     private String postText;
     private String previewURL;
 
     public DiaryPreviewItem() { }
 
-    public DiaryPreviewItem(String author, String date, String trackName, String coverURL, String postText, String previewURL) {
+    public DiaryPreviewItem(String author, String date, String trackName, String trackArtists, String coverURL, String postText, String previewURL) {
         this.author = author;
         this.date = date;
         this.trackName = trackName;
+        this.trackArtists = trackArtists;
         this.coverURL = coverURL;
         this.postText = postText;
         this.previewURL = previewURL;
@@ -33,14 +35,20 @@ public class DiaryPreviewItem {
         return trackName;
     }
 
+    public String getTrackArtists() {
+        return trackArtists;
+    }
+
     public String getCoverURL() {
         return coverURL;
     }
 
-    public String getPreviewURL() { return previewURL; }
-
     public String getPostText() {
         return postText;
+    }
+
+    public String getPreviewURL() {
+        return previewURL;
     }
 
     @NonNull
@@ -50,6 +58,7 @@ public class DiaryPreviewItem {
                 "author='" + author + '\'' +
                 ", date='" + date + '\'' +
                 ", trackName='" + trackName + '\'' +
+                ", trackArtists='" + trackArtists + '\'' +
                 ", coverURL='" + coverURL + '\'' +
                 ", postText='" + postText + '\'' +
                 ", previewURL='" + previewURL + '\'' +

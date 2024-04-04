@@ -66,6 +66,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String trackName;
     private String textPost;
     private String trackURI;
+    private String allArtists;
     private static String currEntryId;
     private String previewURL;
     private LocalDate openedEntryLocalDate;
@@ -88,6 +89,7 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
+        String openedEntryTrackArtists = getIntent().getStringExtra("openedEntryTrackArtists");
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
         String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
         String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
@@ -118,6 +120,10 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         if (openedEntryTrackName != null) {
             trackNameTextView.setText(openedEntryTrackName);
+        }
+
+        if (openedEntryTrackArtists != null) {
+            artistTextView.setText(openedEntryTrackArtists);
         }
 
         if (openedEntryCoverURL != null) {
@@ -222,7 +228,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                                         Log.d("SingleEntry", "Artist Name: " + artistName);
 
                                     }
-                                    String allArtists = concatenatedArtists.toString();
+                                    allArtists = concatenatedArtists.toString();
                                     artistTextView.setText(allArtists);
                                 }
 
@@ -264,11 +270,11 @@ public class SingleEntryActivity extends AppCompatActivity {
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 String entryKey = dataSnapshot.getKey();
                                 Log.d("Firebase", "Entry with key " + entryKey + " exists. Updating entry.");
-                                updateExistingEntry(entryKey, trackName, imageUrl, previewURL, textPost);
+                                updateExistingEntry(entryKey, trackName, allArtists, imageUrl, textPost, previewURL);
                             }
                         } else {
                             Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, imageUrl, textPost, previewURL);
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL);
                             currEntryId = userDiaryReference.push().getKey();
                             if (currEntryId != null) {
                                 userDiaryReference.child(currEntryId).setValue(entry);
@@ -291,12 +297,13 @@ public class SingleEntryActivity extends AppCompatActivity {
         );
     }
 
-    private void updateExistingEntry(String entryKey, String newTrack, String newImageUrl, String newPreviewURL, String newTextPost) {
+    private void updateExistingEntry(String entryKey, String newTrack, String newArtists, String newImageUrl, String newTextPost, String newPreviewURL) {
         Map<String, Object> updateFields = new HashMap<>();
         updateFields.put("trackName", newTrack);
+        updateFields.put("trackArtists", newArtists);
         updateFields.put("coverURL", newImageUrl);
-        updateFields.put("previewURL", newPreviewURL);
         updateFields.put("postText", newTextPost);
+        updateFields.put("previewURL", newPreviewURL);
 
         userDiaryReference.child(entryKey).updateChildren(updateFields)
                 .addOnCompleteListener(task -> {

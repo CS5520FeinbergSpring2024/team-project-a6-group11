@@ -58,6 +58,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         Intent intent = new Intent(context, SingleEntryActivity.class);
         intent.putExtra("openedEntryDate", diaryPreviewList.get(position).getDate());
         intent.putExtra("openedEntryTrackName", diaryPreviewList.get(position).getTrackName());
+        intent.putExtra("openedEntryTrackArtists", diaryPreviewList.get(position).getTrackArtists());
         intent.putExtra("openedEntryCoverURL", diaryPreviewList.get(position).getCoverURL());
         intent.putExtra("openedEntryPostText",diaryPreviewList.get(position).getPostText());
         intent.putExtra("openedPreviewURL", diaryPreviewList.get(position).getPreviewURL());
@@ -105,7 +106,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
 
         holder.authorTextView.setText(item.getAuthor());
         holder.dateTextView.setText(item.getDate());
-        holder.trackNameTextView.setText(item.getTrackName());
+        holder.trackNameTextView.setText(item.getTrackArtists() + " - " + item.getTrackName());
 
         if (!(item.getAuthor().equals(MainActivity.username))) {
             holder.sendEntryButton.setVisibility(View.GONE);
