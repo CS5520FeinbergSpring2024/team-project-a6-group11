@@ -24,6 +24,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -60,7 +63,10 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String imageUrl;
     private String trackName;
     private String textPost;
+    private boolean isPlaying = false;
+    private String trackURI;
     private static String currEntryId;
+    private SpotifyAppRemote mSpotifyAppRemote;
 
 //    String sampleURL = "https://api.spotify.com/v1/search?q=First%2520Love%2520artist%253AHikaru%2520Utada&type=track&market=US&limit=1";
 
@@ -122,6 +128,43 @@ public class SingleEntryActivity extends AppCompatActivity {
 //            }
 //        });
 
+//        SpotifyAppRemote.connect(this, new ConnectionParams.Builder(MainActivity.CLIENT_ID)
+//                .setRedirectUri(MainActivity.REDIRECT_URI)
+//                .showAuthView(true)
+//                .build(), new Connector.ConnectionListener() {
+//            @Override
+//            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+//                mSpotifyAppRemote = spotifyAppRemote;
+//                Log.d("SpotifyAppRemote", "Connected to Spotify");
+//                albumImageView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        if (isPlaying == false) playMusic();
+//                        else if(isPlaying == true) stopMusic();
+//                    }
+//                });
+//
+//                mSpotifyAppRemote.getPlayerApi().
+//                        subscribeToPlayerState()
+//                        .setEventCallback(playerState -> {
+//                            boolean isPaused = playerState.isPaused;
+//                            if (isPaused) {
+//                                Log.d("Playstate", "Song is paused");
+//                            } else {
+//                                Log.d("Playstate", "Song is playing");
+//                            }
+//                        });
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable throwable) {
+//                Log.e("SpotifyAppRemote", "Failed to connect to Spotify", throwable);
+//            }
+//        });
+
+
+
+
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
     }
 
@@ -160,6 +203,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                             trackName = firstItem.getString("name");
                             Log.d("SingleEntry", "Track Name: " + trackName);
                             trackNameTextView.setText(trackName);
+
+                            String trackUri = firstItem.getString("uri");
+                            Log.d("SingleEntry", "Track uri: " + trackURI);
+                            trackURI = trackUri;
 
                             JSONObject album = firstItem.getJSONObject("album");
                             JSONArray imagesArray = album.getJSONArray("images");
@@ -238,7 +285,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     private void updateExistingEntry(String entryKey, String newTrack, String newImageUrl, String newTextPost) {
         Map<String, Object> updateFields = new HashMap<>();
         updateFields.put("trackName", newTrack);
-        updateFields.put("coverUrl", newImageUrl);
+        updateFields.put("coverURL", newImageUrl);
         updateFields.put("postText", newTextPost);
 
         userDiaryReference.child(entryKey).updateChildren(updateFields)
@@ -293,4 +340,21 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         return builder.create();
     }
+
+//        private void playMusic() {
+//        if (trackURI != null) {
+//            mSpotifyAppRemote.getPlayerApi().play(trackURI);
+//            Log.d("PlayMusic", "Music is playing");
+//        } else {
+//            Log.d("PlayMusic", "Failed to play music: trackId is null");
+//        }
+//        isPlaying = true;
+//
+//    }
+//
+//    private void stopMusic() {
+//        mSpotifyAppRemote.getPlayerApi().pause();
+//        isPlaying = false;
+//        Log.d("PlayMusic", "Music playback paused");
+//    }
 }

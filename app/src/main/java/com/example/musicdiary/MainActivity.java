@@ -40,13 +40,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
-    private static final String REDIRECT_URI = "com.example.musicdiary://callback";
+    protected static final String CLIENT_ID = "4b83fe61c320426e85d8c3ceeee4773e";
+    protected static final String REDIRECT_URI = "com.example.musicdiary://callback";
     public static String accessToken;
     public static String username;
     public static String userid;
     public static String profilePictureURL = null;
-    private SpotifyAppRemote mSpotifyAppRemote = null;
+    protected static SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
     public static DatabaseReference mDatabase;
 
