@@ -1,58 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/searchMusicButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search for music" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <EditText
-        android:id="@+id/trackNameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="16dp"
-        android:hint="Track Name"
-        android:minHeight="48dp" />
+        <Button
+            android:id="@+id/searchMusicButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search for music" />
 
-    <EditText
-        android:id="@+id/artistEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="16dp"
-        android:hint="Artist"
-        android:minHeight="48dp" />
+        <EditText
+            android:id="@+id/trackNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="16dp"
+            android:hint="Track Name"
+            android:minHeight="48dp"
+            android:inputType="textShortMessage"
+            android:autofillHints="" />
 
-<!--    <EditText-->
-<!--        android:id="@+id/albumEditText"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="4dp"-->
-<!--        android:layout_marginLeft="4dp"-->
-<!--        android:layout_marginRight="4dp"-->
-<!--        android:layout_marginBottom="16dp"-->
-<!--        android:hint="Album" />-->
+        <EditText
+            android:id="@+id/artistEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="16dp"
+            android:hint="Artist"
+            android:minHeight="48dp"
+            android:inputType="textShortMessage"
+            android:autofillHints="" />
 
-    <EditText
-        android:id="@+id/textPostEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="16dp"
-        android:hint="Your mood/feelings/thoughts..."
-        android:minHeight="48dp" />
+        <!--    <EditText-->
+        <!--        android:id="@+id/albumEditText"-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        android:layout_marginTop="4dp"-->
+        <!--        android:layout_marginLeft="4dp"-->
+        <!--        android:layout_marginRight="4dp"-->
+        <!--        android:layout_marginBottom="16dp"-->
+        <!--        android:hint="Album" />-->
 
+        <EditText
+            android:id="@+id/textPostEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="16dp"
+            android:hint="Your message/thoughts..."
+            android:minHeight="48dp"
+            android:autofillHints=""
+            android:inputType="textMultiLine" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Select a mood:" />
+
+        <Spinner
+            android:id="@+id/feelingSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/spinner_items"
+            android:minHeight="48dp" />
+
+    </LinearLayout>
+
+</ScrollView>

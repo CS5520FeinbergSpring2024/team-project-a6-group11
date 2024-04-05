@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -71,6 +74,9 @@ public class SingleEntryActivity extends AppCompatActivity {
     private String previewURL;
     private LocalDate openedEntryLocalDate;
     private CardView postTextCardView;
+    private TextView moodTextView;
+    private ImageView moodIcon;
+    private String mood = "None";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,6 +89,8 @@ public class SingleEntryActivity extends AppCompatActivity {
         artistTextView = findViewById(R.id.artistTextView);
         extraTextView = findViewById(R.id.postText);
         postTextCardView = findViewById(R.id.postTextCardView);
+        moodTextView = findViewById(R.id.moodTextView);
+        moodIcon = findViewById(R.id.moodIcon);
         Button updateButton = findViewById(R.id.updateButton);
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
@@ -93,6 +101,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
         String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
         String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
+        String openedMood = getIntent().getStringExtra("openedMood");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
@@ -142,6 +151,10 @@ public class SingleEntryActivity extends AppCompatActivity {
             postTextCardView.setVisibility(View.INVISIBLE);
         }
 
+        if (openedMood != null) {
+            updateMood(openedMood);
+        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         client = new OkHttpClient();
@@ -168,7 +181,32 @@ public class SingleEntryActivity extends AppCompatActivity {
         MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
     }
 
-    public void updateEntryData(String newTrack, String newArtist, String newTextPost) {
+    private void updateMoodText(String mood) {
+        if (!mood.equals("None")) {
+            moodTextView.setText(mood);
+        } else {
+            moodTextView.setText("");
+        }
+    }
+
+    private void updateMood(String mood) {
+        updateMoodText(mood);
+        switch (mood) {
+            case "I'm feeling good":
+                moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_good, null));
+                break;
+            case "I'm feeling neutral":
+                moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_neutral, null));
+                break;
+            case "I'm feeling bad":
+                moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_bad, null));
+                break;
+            default:
+                moodIcon.setImageDrawable(null);
+        }
+    }
+
+    public void updateEntryData(String newTrack, String newArtist, String newTextPost, String newMood) {
         String apiURL = "https://api.spotify.com/v1/search";
         try {
             String trackEncoded = URLEncoder.encode(newTrack, "UTF-8");
@@ -217,6 +255,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                                     Log.d("SingleEntry", "Image URL: " + imageUrl);
 
                                     loadAlbumImage(imageUrl);
+                                    albumImageView.setVisibility(View.VISIBLE);
                                 }
 
                                 JSONArray artistsArray = firstItem.getJSONArray("artists");
@@ -232,7 +271,6 @@ public class SingleEntryActivity extends AppCompatActivity {
                                             concatenatedArtists.append(", ");
                                         }
                                         Log.d("SingleEntry", "Artist Name: " + artistName);
-
                                     }
                                     allArtists = concatenatedArtists.toString();
                                     artistTextView.setText(allArtists);
@@ -243,12 +281,22 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 }
 
                                 textPost = newTextPost;
+                                if (!textPost.isEmpty()) {
+                                    extraTextView.setText(textPost);
+                                    postTextCardView.setVisibility(View.VISIBLE);
+                                } else {
+                                    postTextCardView.setVisibility(View.INVISIBLE);
+                                }
+
+                                mood = newMood;
+                                updateMood(mood);
 
                                 // Replace extras with updated data
                                 getIntent().putExtra("openedEntryTrackName", trackName);
                                 getIntent().putExtra("openedEntryCoverURL", imageUrl);
                                 getIntent().putExtra("openedEntryPostText", textPost);
                                 getIntent().putExtra("openedPreviewURL", previewURL);
+                                getIntent().putExtra("openedMood", mood);
 
                                 checkEntryExists(currentDate); // in the database
                             } else {
@@ -276,40 +324,30 @@ public class SingleEntryActivity extends AppCompatActivity {
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 String entryKey = dataSnapshot.getKey();
                                 Log.d("Firebase", "Entry with key " + entryKey + " exists. Updating entry.");
-                                updateExistingEntry(entryKey, trackName, allArtists, imageUrl, textPost, previewURL);
+                                updateExistingEntry(entryKey, trackName, allArtists, imageUrl, textPost, previewURL, mood);
                             }
                         } else {
                             Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL);
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL, mood);
                             currEntryId = userDiaryReference.push().getKey();
                             if (currEntryId != null) {
                                 userDiaryReference.child(currEntryId).setValue(entry);
                             }
                             Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
                         }
-
-                        runOnUiThread(() -> {
-                            albumImageView.setVisibility(View.VISIBLE);
-
-                            if (!textPost.isEmpty()) {
-                                extraTextView.setText(textPost);
-                                postTextCardView.setVisibility(View.VISIBLE);
-                            } else {
-                                postTextCardView.setVisibility(View.INVISIBLE);
-                            }
-                        });
                     }
                 }
         );
     }
 
-    private void updateExistingEntry(String entryKey, String newTrack, String newArtists, String newImageUrl, String newTextPost, String newPreviewURL) {
+    private void updateExistingEntry(String entryKey, String newTrack, String newArtists, String newImageUrl, String newTextPost, String newPreviewURL, String newMood) {
         Map<String, Object> updateFields = new HashMap<>();
         updateFields.put("trackName", newTrack);
         updateFields.put("trackArtists", newArtists);
         updateFields.put("coverURL", newImageUrl);
         updateFields.put("postText", newTextPost);
         updateFields.put("previewURL", newPreviewURL);
+        updateFields.put("mood", newMood);
 
         userDiaryReference.child(entryKey).updateChildren(updateFields)
                 .addOnCompleteListener(task -> {
@@ -334,8 +372,8 @@ public class SingleEntryActivity extends AppCompatActivity {
 
         trackEditText = view.findViewById(R.id.trackNameEditText);
         artistEditText = view.findViewById(R.id.artistEditText);
-
         EditText textPostEditText = view.findViewById(R.id.textPostEditText);
+        Spinner feelingSpinner = view.findViewById(R.id.feelingSpinner);
 
         Button searchMusicButton = view.findViewById(R.id.searchMusicButton);
         searchMusicButton.setOnClickListener(v -> {
@@ -347,6 +385,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             String newTrack = trackEditText.getText().toString().trim();
             String newArtist = artistEditText.getText().toString().trim();
             String newTextPost = textPostEditText.getText().toString().trim();
+            String newMood = feelingSpinner.getSelectedItem().toString();
 
             if (!LocalDate.now().equals(openedEntryLocalDate)) { // if the date has changed while on this activity
                 Toast.makeText(SingleEntryActivity.this, "You can only edit today's entry!", Toast.LENGTH_SHORT).show();
@@ -354,7 +393,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             }
 
             if (!newTrack.isEmpty() && !newArtist.isEmpty()) {
-                updateEntryData(newTrack, newArtist, newTextPost);
+                updateEntryData(newTrack, newArtist, newTextPost, newMood);
             } else {
                 Toast.makeText(SingleEntryActivity.this, "Please enter a track name and an artist name.", Toast.LENGTH_SHORT).show();
             }

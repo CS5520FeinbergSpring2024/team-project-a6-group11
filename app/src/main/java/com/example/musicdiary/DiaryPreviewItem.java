@@ -10,10 +10,11 @@ public class DiaryPreviewItem {
     private String coverURL;
     private String postText;
     private String previewURL;
+    private String mood;
 
     public DiaryPreviewItem() { }
 
-    public DiaryPreviewItem(String author, String date, String trackName, String trackArtists, String coverURL, String postText, String previewURL) {
+    public DiaryPreviewItem(String author, String date, String trackName, String trackArtists, String coverURL, String postText, String previewURL, String mood) {
         this.author = author;
         this.date = date;
         this.trackName = trackName;
@@ -21,6 +22,7 @@ public class DiaryPreviewItem {
         this.coverURL = coverURL;
         this.postText = postText;
         this.previewURL = previewURL;
+        this.mood = mood;
     }
 
     public String getAuthor() {
@@ -51,6 +53,10 @@ public class DiaryPreviewItem {
         return previewURL;
     }
 
+    public String getMood() {
+        return mood;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -62,6 +68,7 @@ public class DiaryPreviewItem {
                 ", coverURL='" + coverURL + '\'' +
                 ", postText='" + postText + '\'' +
                 ", previewURL='" + previewURL + '\'' +
+                ", mood='" + mood + '\'' +
                 '}';
     }
 }
