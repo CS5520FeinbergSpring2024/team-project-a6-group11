@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -73,6 +74,26 @@ public class MainActivity extends AppCompatActivity {
                         .setCancelable(false)
                         .show();
             }
+        }
+
+        if (!autoTimeEnabled()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Automatic date and time disabled.")
+                    .setMessage("Due to security concerns, this application requires automatic date and time to be enabled.")
+                    .setPositiveButton("Open Settings", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_DATE_SETTINGS);
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(intent);
+                        } else {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setMessage("Could not open settings. The application will now close.")
+                                    .setPositiveButton("OK", (dialog_, which2_) -> System.exit(0))
+                                    .setCancelable(false)
+                                    .show();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
         }
     }
 
@@ -146,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
                             try {
                                 JSONArray imagesArray = userData.getJSONArray("images");
-                                JSONObject imageObject = (JSONObject)imagesArray.get(imagesArray.length() - 1);
+                                JSONObject imageObject = (JSONObject) imagesArray.get(imagesArray.length() - 1);
                                 profilePictureURL = imageObject.getString("url");
                             } catch (JSONException jsonException) {
                             }
@@ -215,5 +236,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private boolean autoTimeEnabled() {
+        try {
+            int setting = Settings.Global.getInt(getContentResolver(), Settings.Global.AUTO_TIME);
+            return setting == 1; // If true, user has automatic date and time enabled.
+        } catch (Settings.SettingNotFoundException e) {
+            return false;
+        }
     }
 }
