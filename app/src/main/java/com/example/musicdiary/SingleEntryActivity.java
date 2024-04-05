@@ -153,6 +153,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                     String trackName = data.getStringExtra("trackName");
                     String trackArtists = data.getStringExtra("trackArtists");
 
+                    if (trackEditText == null || artistEditText == null) {
+                        onClickUpdateEntry(getCurrentFocus()); // reopen the dialog if for some reason it is dismissed
+                    }
+
                     trackEditText.setText(trackName);
                     artistEditText.setText(trackArtists);
                 }
