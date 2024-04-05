@@ -14,8 +14,8 @@ public class MediaPlayerClient {
         try {
             resetMediaPlayer();
             mediaPlayer.setDataSource(previewURL);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+            mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             Toast toast = Toast.makeText(context, "Failed to play the song preview.", Toast.LENGTH_SHORT);
             toast.show();

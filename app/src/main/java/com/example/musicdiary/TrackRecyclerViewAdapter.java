@@ -7,7 +7,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -86,23 +85,25 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             holder.playButton.setImageResource(android.R.drawable.ic_media_play);
         }
 
-        holder.playButton.setOnClickListener(view -> AsyncTask.execute(() -> {
-                    if (trackItems.get(position).trackPreviewURL.equals("null")) {
-                        view.post(() -> {
-                            Toast toast = Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT);
-                            toast.show();
-                        });
-                    } else if (lastPlayingTrackPosition == currentPosition) {
-                        MediaPlayerClient.mediaPlayer.pause();
-                        lastPlayingTrackPosition = -1;
-                    } else {
-                        String previewURL = trackItems.get(position).trackPreviewURL;
-                        MediaPlayerClient.playTrack(previewURL, view.getContext());
-                        lastPlayingTrackPosition = currentPosition;
-                    }
-                    view.post(this::notifyDataSetChanged);
-                })
-        );
+        holder.playButton.setOnClickListener(view -> {
+            if (trackItems.get(position).trackPreviewURL.equals("null")) {
+                Toast.makeText(view.getContext(), "Preview unavailable for this track.", Toast.LENGTH_SHORT).show();
+            } else if (lastPlayingTrackPosition == currentPosition) {
+                MediaPlayerClient.mediaPlayer.pause();
+                lastPlayingTrackPosition = -1;
+                holder.playButton.setImageResource(android.R.drawable.ic_media_play);
+            } else {
+                String previewURL = trackItems.get(position).trackPreviewURL;
+                MediaPlayerClient.playTrack(previewURL, view.getContext());
+                holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
+
+                if (lastPlayingTrackPosition != -1) {
+                    notifyItemChanged(lastPlayingTrackPosition); // update the view for the last played track
+                }
+
+                lastPlayingTrackPosition = currentPosition;
+            }
+        });
 
         holder.addButton.setOnClickListener(view -> {
             if (onAddButtonPressedListener != null) {
