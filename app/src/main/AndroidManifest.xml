@@ -56,7 +56,8 @@
             android:parentActivityName=".DiaryBookActivity" />
         <activity
             android:name=".DiaryBookActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:parentActivityName=".HomepageActivity" />
     </application>
 
 </manifest>

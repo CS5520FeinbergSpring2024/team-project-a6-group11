@@ -6,6 +6,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,10 +33,18 @@ public class DiaryBookActivity extends AppCompatActivity {
 
         diaryRecyclerView = findViewById(R.id.diaryRecyclerView);
         addEntryButton = findViewById(R.id.addEntryButton);
+        Toolbar diaryBookToolbar = findViewById(R.id.diaryBookToolbar);
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
         diaryEntries = new ArrayList<>();
 
         populateDiaryEntries();
+
+        setSupportActionBar(diaryBookToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Your Diary");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     public void onClickToEntry(View view) {
