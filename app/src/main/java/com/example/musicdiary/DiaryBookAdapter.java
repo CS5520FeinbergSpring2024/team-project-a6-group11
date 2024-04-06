@@ -83,12 +83,17 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         sendButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString().trim();
 
-            if (!username.isEmpty()) {
-                System.out.println("Send data: " + username + ", " + diaryPreviewList.get(position));
-                dialog.dismiss();
-            } else {
+            if (username.isEmpty()) {
                 Toast.makeText(context, "Please enter a username.", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (username.equalsIgnoreCase(MainActivity.username)) {
+                Toast.makeText(context, "You can not send an entry to yourself!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            System.out.println("Send data: " + username + ", " + diaryPreviewList.get(position));
+            dialog.dismiss();
         });
 
         dialog.show();
