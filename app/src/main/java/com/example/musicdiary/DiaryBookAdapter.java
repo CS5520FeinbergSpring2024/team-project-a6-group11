@@ -27,14 +27,14 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
     public static class DiaryPreviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView dateTextView;
         TextView trackNameTextView;
-        TextView authorTextView;
+        TextView authorPostTextView;
         ImageButton sendEntryButton;
 
         public DiaryPreviewViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
             trackNameTextView = itemView.findViewById(R.id.trackNameTextView);
-            authorTextView = itemView.findViewById(R.id.authorTextView);
+            authorPostTextView = itemView.findViewById(R.id.authorPostTextView);
             sendEntryButton = itemView.findViewById(R.id.sendEntryButton);
 
             itemView.setOnClickListener(this);
@@ -106,11 +106,18 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
     public void onBindViewHolder(@NonNull DiaryPreviewViewHolder holder, int position) {
         DiaryPreviewItem item = diaryPreviewList.get(position);
 
-        holder.authorTextView.setText(item.getAuthor());
+        String authorText;
+        if (item.getPostText() != null && !item.getPostText().isEmpty()) {
+            authorText = item.getAuthor() + " wrote: \"" + item.getPostText() + "\"";
+        } else {
+            authorText = item.getAuthor() + " listened to:";
+        }
+
+        holder.authorPostTextView.setText(authorText);
         holder.dateTextView.setText(item.getDate());
         holder.trackNameTextView.setText(item.getTrackArtists() + " - " + item.getTrackName());
 
-        if (!(item.getAuthor().equals(MainActivity.username))) {
+        if (item.getAuthor() != null && !(item.getAuthor().equals(MainActivity.username))) {
             holder.sendEntryButton.setVisibility(View.GONE);
         }
     }

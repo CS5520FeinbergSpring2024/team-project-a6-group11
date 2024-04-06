@@ -78,7 +78,7 @@ public class DiaryBookActivity extends AppCompatActivity {
         String currentDateString = dateTimeFormatter.format(currentDate);
 
         for (DiaryPreviewItem entry : diaryEntries) {
-            if (entry.getDate().equals(currentDateString)) {
+            if (entry.getDate() != null && entry.getDate().equals(currentDateString)) {
                 return true;
             }
         }
