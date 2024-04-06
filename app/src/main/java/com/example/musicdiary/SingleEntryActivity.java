@@ -100,12 +100,12 @@ public class SingleEntryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
-        String openedEntryTrackName = getIntent().getStringExtra("openedEntryTrackName");
-        String openedEntryTrackArtists = getIntent().getStringExtra("openedEntryTrackArtists");
+        trackName = getIntent().getStringExtra("openedEntryTrackName");
+        allArtists = getIntent().getStringExtra("openedEntryTrackArtists");
         String openedEntryCoverURL = getIntent().getStringExtra("openedEntryCoverURL");
-        String openedEntryPostText = getIntent().getStringExtra("openedEntryPostText");
+        textPost = getIntent().getStringExtra("openedEntryPostText");
         String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
-        String openedMood = getIntent().getStringExtra("openedMood");
+        mood = getIntent().getStringExtra("openedMood");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
@@ -131,12 +131,12 @@ public class SingleEntryActivity extends AppCompatActivity {
             }
         }
 
-        if (openedEntryTrackName != null) {
-            trackNameTextView.setText(openedEntryTrackName);
+        if (trackName != null) {
+            trackNameTextView.setText(trackName);
         }
 
-        if (openedEntryTrackArtists != null) {
-            artistTextView.setText(openedEntryTrackArtists);
+        if (allArtists != null) {
+            artistTextView.setText(allArtists);
         }
 
         if (openedEntryCoverURL != null) {
@@ -149,14 +149,14 @@ public class SingleEntryActivity extends AppCompatActivity {
             previewURL = openedPreviewURL;
         }
 
-        if (openedEntryPostText != null && !openedEntryPostText.isEmpty()) {
-            extraTextView.setText(openedEntryPostText);
+        if (textPost != null && !textPost.isEmpty()) {
+            extraTextView.setText(textPost);
         } else {
             postTextCardView.setVisibility(View.INVISIBLE);
         }
 
-        if (openedMood != null) {
-            updateMood(openedMood);
+        if (mood != null) {
+            updateMood(mood);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -392,6 +392,18 @@ public class SingleEntryActivity extends AppCompatActivity {
         artistEditText = view.findViewById(R.id.artistEditText);
         EditText textPostEditText = view.findViewById(R.id.textPostEditText);
         Spinner feelingSpinner = view.findViewById(R.id.feelingSpinner);
+
+        trackEditText.setText(trackName);
+        artistEditText.setText(allArtists);
+        textPostEditText.setText(textPost);
+
+        String[] spinnerItems = getResources().getStringArray(R.array.spinner_items);
+        for (int i = 0; i < spinnerItems.length; i++) {
+            if (spinnerItems[i].equals(mood)) {
+                feelingSpinner.setSelection(i);
+                break;
+            }
+        }
 
         Button searchMusicButton = view.findViewById(R.id.searchMusicButton);
         searchMusicButton.setOnClickListener(v -> {
