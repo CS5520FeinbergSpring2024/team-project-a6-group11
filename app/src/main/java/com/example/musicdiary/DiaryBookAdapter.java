@@ -9,11 +9,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         TextView dateTextView;
         TextView trackNameTextView;
         TextView authorPostTextView;
+        ImageView albumCoverImageView;
         ImageButton sendEntryButton;
 
         public DiaryPreviewViewHolder(@NonNull View itemView) {
@@ -35,6 +39,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
             dateTextView = itemView.findViewById(R.id.dateTextView);
             trackNameTextView = itemView.findViewById(R.id.trackNameTextView);
             authorPostTextView = itemView.findViewById(R.id.authorPostTextView);
+            albumCoverImageView = itemView.findViewById(R.id.imageViewAlbumCover);
             sendEntryButton = itemView.findViewById(R.id.sendEntryButton);
 
             itemView.setOnClickListener(this);
@@ -121,6 +126,9 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         holder.authorPostTextView.setText(authorText);
         holder.dateTextView.setText(item.getDate());
         holder.trackNameTextView.setText(item.getTrackArtists() + " - " + item.getTrackName());
+        if (item.getCoverURL() != null) {
+            Picasso.get().load(item.getCoverURL()).into(holder.albumCoverImageView);
+        }
 
         if (item.getAuthor() != null && !(item.getAuthor().equals(MainActivity.username))) {
             holder.sendEntryButton.setVisibility(View.GONE);
