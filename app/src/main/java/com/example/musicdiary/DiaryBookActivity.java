@@ -24,10 +24,11 @@ import java.util.List;
 
 public class DiaryBookActivity extends AppCompatActivity {
     private RecyclerView diaryRecyclerView;
-    private DatabaseReference userDiaryReference;
+    private DatabaseReference diaryReference;
     private FloatingActionButton addEntryButton;
     private List<DiaryPreviewItem> diaryEntries;
     private ProgressBar progressBar;
+    public static String sharedDiaryReference;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,22 +37,38 @@ public class DiaryBookActivity extends AppCompatActivity {
         diaryRecyclerView = findViewById(R.id.diaryRecyclerView);
         addEntryButton = findViewById(R.id.addEntryButton);
         Toolbar diaryBookToolbar = findViewById(R.id.diaryBookToolbar);
-        userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
         diaryEntries = new ArrayList<>();
         progressBar = findViewById(R.id.diaryBookProgressBar);
-
-        populateDiaryEntries();
 
         setSupportActionBar(diaryBookToolbar);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Your Diary");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        sharedDiaryReference = getIntent().getStringExtra("sharedDiaryReference"); // redefine every time this activity is created
+        if (sharedDiaryReference != null) {
+            diaryReference = MainActivity.mDatabase.child(sharedDiaryReference);
+            setToolbarTitle("Shared Diary");
+        } else {
+            diaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
+            setToolbarTitle("Your Diary");
+        }
+
+        populateDiaryEntries();
+    }
+
+    private void setToolbarTitle(String title) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
         }
     }
 
     public void onClickToEntry(View view) {
         Intent intent = new Intent(this, SingleEntryActivity.class);
+        if (sharedDiaryReference != null) {
+            intent.putExtra("sharedDiaryReference", sharedDiaryReference);
+        }
         startActivity(intent);
     }
 
@@ -70,9 +87,10 @@ public class DiaryBookActivity extends AppCompatActivity {
     }
 
     private void populateDiaryEntries() {
-        userDiaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        diaryReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                diaryEntries.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot child : snapshot.getChildren()) {
                         DiaryPreviewItem diaryPreviewItem = child.getValue(DiaryPreviewItem.class);

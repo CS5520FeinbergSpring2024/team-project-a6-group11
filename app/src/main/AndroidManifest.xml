@@ -18,9 +18,6 @@
             android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".PublicDiaryActivity"
-            android:exported="false" />
-        <activity
             android:name=".HomepageActivity"
             android:exported="false" />
         <activity
@@ -52,11 +49,10 @@
         </activity>
         <activity
             android:name=".SingleEntryActivity"
-            android:exported="true"
-            android:parentActivityName=".DiaryBookActivity" />
+            android:exported="false" />
         <activity
             android:name=".DiaryBookActivity"
-            android:exported="true"
+            android:exported="false"
             android:parentActivityName=".HomepageActivity" />
     </application>
 

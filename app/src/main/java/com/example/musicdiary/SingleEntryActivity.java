@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,7 +64,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     EditText artistEditText;
     private static final String ACCESS_TOKEN = MainActivity.accessToken;
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    private DatabaseReference userDiaryReference;
+    private DatabaseReference diaryReference;
     private DateTimeFormatter dateTimeFormatter;
     private String currentDate;
     private String imageUrl;
@@ -179,7 +180,12 @@ public class SingleEntryActivity extends AppCompatActivity {
             }
         });
 
-        userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
+        String sharedDiaryReference = getIntent().getStringExtra("sharedDiaryReference");
+        if (sharedDiaryReference != null) {
+            diaryReference = MainActivity.mDatabase.child(sharedDiaryReference);
+        } else {
+            diaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
+        }
 
         MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
     }
@@ -324,7 +330,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     private void checkEntryExists(String currentDate) {
-        userDiaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(task -> {
+        diaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         Log.e("firebase", "Error getting data", task.getException());
                         updatingView.setVisibility(View.GONE);
@@ -339,9 +345,9 @@ public class SingleEntryActivity extends AppCompatActivity {
                         } else {
                             Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
                             DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL, mood);
-                            currEntryId = userDiaryReference.push().getKey();
+                            currEntryId = diaryReference.push().getKey();
                             if (currEntryId != null) {
-                                userDiaryReference.child(currEntryId).setValue(entry);
+                                diaryReference.child(currEntryId).setValue(entry);
                             }
                             Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
                             updatingView.setVisibility(View.GONE);
@@ -360,7 +366,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         updateFields.put("previewURL", newPreviewURL);
         updateFields.put("mood", newMood);
 
-        userDiaryReference.child(entryKey).updateChildren(updateFields)
+        diaryReference.child(entryKey).updateChildren(updateFields)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(SingleEntryActivity.this, "Entry updated successfully", Toast.LENGTH_SHORT).show();
@@ -461,6 +467,14 @@ public class SingleEntryActivity extends AppCompatActivity {
         albumImageView.setImageResource(android.R.drawable.ic_media_play);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) { // the back button
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onPause() {

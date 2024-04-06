@@ -24,8 +24,9 @@ public class HomepageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void startPublicDiaryActivity(View view) {
-        Intent intent = new Intent(this, PublicDiaryActivity.class);
+    public void startSharedDiaryActivity(View view) {
+        Intent intent = new Intent(this, DiaryBookActivity.class);
+        intent.putExtra("sharedDiaryReference", "shared_diary_entries");
         startActivity(intent);
     }
 
