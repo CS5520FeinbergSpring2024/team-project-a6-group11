@@ -3,6 +3,7 @@ package com.example.musicdiary;
 // Code referenced from: https://developer.spotify.com/documentation/android/tutorials/getting-started
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -76,25 +77,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (!autoTimeEnabled()) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Automatic date and time disabled.")
-                    .setMessage("Due to security concerns, this application requires automatic date and time to be enabled.")
-                    .setPositiveButton("Open Settings", (dialog, which) -> {
-                        Intent intent = new Intent(Settings.ACTION_DATE_SETTINGS);
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivity(intent);
-                        } else {
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setMessage("Could not open settings. The application will now close.")
-                                    .setPositiveButton("OK", (dialog_, which2_) -> System.exit(0))
-                                    .setCancelable(false)
-                                    .show();
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }
+        checkIfAutoTimeEnabled(this);
     }
 
     @Override
@@ -238,12 +221,41 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private boolean autoTimeEnabled() {
+    public static void checkIfAutoTimeEnabled(Context context) {
+        if (!autoTimeEnabled(context)) {
+            new AlertDialog.Builder(context)
+                    .setTitle("Automatic date and time disabled.")
+                    .setMessage("Due to security concerns, this application requires automatic date and time to be enabled.")
+                    .setPositiveButton("Open Settings", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_DATE_SETTINGS);
+                        if (intent.resolveActivity(context.getPackageManager()) != null) {
+                            context.startActivity(intent);
+                            System.exit(0);
+                        } else {
+                            new AlertDialog.Builder(context)
+                                    .setMessage("Could not open settings. The application will now close.")
+                                    .setPositiveButton("OK", (dialog_, which2_) -> System.exit(0))
+                                    .setCancelable(false)
+                                    .show();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+    }
+
+    public static boolean autoTimeEnabled(Context context) {
         try {
-            int setting = Settings.Global.getInt(getContentResolver(), Settings.Global.AUTO_TIME);
+            int setting = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AUTO_TIME);
             return setting == 1; // If true, user has automatic date and time enabled.
         } catch (Settings.SettingNotFoundException e) {
             return false;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkIfAutoTimeEnabled(this);
     }
 }

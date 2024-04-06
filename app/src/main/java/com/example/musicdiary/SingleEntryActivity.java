@@ -457,6 +457,12 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         pauseTrack();

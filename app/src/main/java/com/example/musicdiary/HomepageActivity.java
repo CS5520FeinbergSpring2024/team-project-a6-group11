@@ -28,4 +28,10 @@ public class HomepageActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PublicDiaryActivity.class);
         startActivity(intent);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
+    }
 }

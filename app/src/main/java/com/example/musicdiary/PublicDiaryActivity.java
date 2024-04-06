@@ -59,4 +59,10 @@ public class PublicDiaryActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
+    }
 }

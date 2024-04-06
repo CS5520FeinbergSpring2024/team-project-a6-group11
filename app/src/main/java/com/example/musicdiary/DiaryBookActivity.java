@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,7 @@ public class DiaryBookActivity extends AppCompatActivity {
     private DatabaseReference userDiaryReference;
     private FloatingActionButton addEntryButton;
     private List<DiaryPreviewItem> diaryEntries;
+    private ProgressBar progressBar;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +38,7 @@ public class DiaryBookActivity extends AppCompatActivity {
         Toolbar diaryBookToolbar = findViewById(R.id.diaryBookToolbar);
         userDiaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
         diaryEntries = new ArrayList<>();
+        progressBar = findViewById(R.id.diaryBookProgressBar);
 
         populateDiaryEntries();
 
@@ -53,16 +56,17 @@ public class DiaryBookActivity extends AppCompatActivity {
     }
 
     private Boolean currentEntryCreated(List<DiaryPreviewItem> diaryEntries) {
-        if (diaryEntries.isEmpty()) {
-            return false;
-        }
-
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         String currentDateString = dateTimeFormatter.format(currentDate);
-        String lastEntryDate = diaryEntries.get(diaryEntries.size() - 1).getDate();
 
-        return lastEntryDate.equals(currentDateString);
+        for (DiaryPreviewItem entry : diaryEntries) {
+            if (entry.getDate().equals(currentDateString)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void populateDiaryEntries() {
@@ -74,17 +78,16 @@ public class DiaryBookActivity extends AppCompatActivity {
                         DiaryPreviewItem diaryPreviewItem = child.getValue(DiaryPreviewItem.class);
                         diaryEntries.add(diaryPreviewItem);
                     }
-
-                    runOnUiThread(() -> {
-                        if (currentEntryCreated(diaryEntries)) {
-                            addEntryButton.setVisibility(View.INVISIBLE);
-                        }
-
-                        DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(diaryEntries);
-                        diaryRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        diaryRecyclerView.setAdapter(diaryBookAdapter);
-                    });
                 }
+
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(diaryEntries);
+                    diaryRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                    diaryRecyclerView.setAdapter(diaryBookAdapter);
+
+                    updateAddEntryButton();
+                });
             }
 
             @Override
@@ -94,13 +97,17 @@ public class DiaryBookActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void updateAddEntryButton() {
         if (currentEntryCreated(diaryEntries)) {
             addEntryButton.setVisibility(View.INVISIBLE);
         } else {
             addEntryButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
     }
 }

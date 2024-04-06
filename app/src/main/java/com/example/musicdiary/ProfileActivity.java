@@ -88,6 +88,12 @@ public class ProfileActivity extends AppCompatActivity {
             textViewUsername.setText(updatedUsername);
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
+    }
 }
 
 

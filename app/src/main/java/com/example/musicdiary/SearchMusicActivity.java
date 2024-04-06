@@ -312,4 +312,10 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
             setSearchType("artist");
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.checkIfAutoTimeEnabled(this);
+    }
 }
