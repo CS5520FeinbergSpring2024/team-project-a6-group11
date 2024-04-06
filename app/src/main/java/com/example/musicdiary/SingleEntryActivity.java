@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +78,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     private TextView moodTextView;
     private ImageView moodIcon;
     private String mood = "None";
+    private LinearLayout updatingView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         postTextCardView = findViewById(R.id.postTextCardView);
         moodTextView = findViewById(R.id.moodTextView);
         moodIcon = findViewById(R.id.moodIcon);
+        updatingView = findViewById(R.id.updatingView);
         Button updateButton = findViewById(R.id.updateButton);
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
@@ -215,14 +218,20 @@ public class SingleEntryActivity extends AppCompatActivity {
 
             apiURL += "?q=" + query + "&type=track&market=US&limit=1";
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Toast.makeText(this, "The given information could not be read.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        updatingView.setVisibility(View.VISIBLE);
 
         Request request = new Request.Builder().url(apiURL).addHeader("Authorization", "Bearer " + ACCESS_TOKEN).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(SingleEntryActivity.this, "Failed to search for a track", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    updatingView.setVisibility(View.GONE);
+                    Toast.makeText(SingleEntryActivity.this, "Could not search for the given track.", Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
@@ -305,8 +314,8 @@ public class SingleEntryActivity extends AppCompatActivity {
                         }
                     } catch (JSONException | IOException exception) {
                         runOnUiThread(() -> {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Failed to update the playlist information!", Toast.LENGTH_SHORT);
-                            toast.show();
+                            Toast.makeText(getApplicationContext(), "An error occurred while updating.", Toast.LENGTH_SHORT).show();
+                            updatingView.setVisibility(View.GONE);
                         });
                     }
                 });
@@ -318,6 +327,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         userDiaryReference.orderByChild("date").equalTo(currentDate).get().addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         Log.e("firebase", "Error getting data", task.getException());
+                        updatingView.setVisibility(View.GONE);
                     } else {
                         DataSnapshot snapshot = task.getResult();
                         if (snapshot.exists()) {
@@ -334,6 +344,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 userDiaryReference.child(currEntryId).setValue(entry);
                             }
                             Toast.makeText(SingleEntryActivity.this, "Entry created successfully", Toast.LENGTH_SHORT).show();
+                            updatingView.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -356,6 +367,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(SingleEntryActivity.this, "Failed to update entry", Toast.LENGTH_SHORT).show();
                     }
+                    updatingView.setVisibility(View.GONE);
                 });
     }
 

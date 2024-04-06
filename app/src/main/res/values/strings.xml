@@ -20,6 +20,8 @@
     <string name="add_a_new_diary_entry">Add a new diary entry</string>
     <string name="privacy">privacy</string>
     <string name="mood_icon">Mood icon</string>
+    <string name="logging_in">Logging in...</string>
+    <string name="updating">Updating...</string>
     <string-array name="spinner_items">
         <item>None</item>
         <item>I\'m feeling good</item>

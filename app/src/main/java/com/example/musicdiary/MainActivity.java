@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,11 +53,16 @@ public class MainActivity extends AppCompatActivity {
     protected static SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
     public static DatabaseReference mDatabase;
+    private ProgressBar progressBar;
+    private TextView loginTextView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        progressBar = findViewById(R.id.mainProgressBar);
+        loginTextView = findViewById(R.id.loginTextView);
     }
 
     @Override
@@ -118,9 +125,8 @@ public class MainActivity extends AppCompatActivity {
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
-                    Toast toast = Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
-                            "Please try again later.", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
+                            "Please try again later.", Toast.LENGTH_SHORT).show();
                     break;
                 // Most likely auth flow was cancelled
                 default:
@@ -131,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleResponse() {
         if (accessToken != null) {
+            progressBar.setVisibility(View.VISIBLE);
+            loginTextView.setVisibility(View.VISIBLE);
+
             Request request = new Request.Builder().url("https://api.spotify.com/v1/me")
                     .addHeader("Authorization", "Bearer " + accessToken)
                     .build();
@@ -164,11 +173,18 @@ public class MainActivity extends AppCompatActivity {
                                 .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
                                 .show());
                     }
+
+                    progressBar.setVisibility(View.INVISIBLE);
+                    loginTextView.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    loginTextView.setVisibility(View.INVISIBLE);
 
+                    Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
+                            "Please try again later.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
