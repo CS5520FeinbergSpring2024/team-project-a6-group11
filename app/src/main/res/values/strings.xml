@@ -22,6 +22,10 @@
     <string name="mood_icon">Mood icon</string>
     <string name="logging_in">Logging in...</string>
     <string name="updating">Updating...</string>
+    <string name="enter_a_new_username">Enter a new username</string>
+    <string name="save">Save</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="edit_username">Edit Username</string>
     <string-array name="spinner_items">
         <item>None</item>
         <item>I\'m feeling good</item>
