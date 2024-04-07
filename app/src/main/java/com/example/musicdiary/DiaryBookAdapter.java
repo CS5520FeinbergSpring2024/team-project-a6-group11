@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -92,12 +97,34 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
                 Toast.makeText(context, "Please enter a username.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (username.equalsIgnoreCase(MainActivity.username)) {
+            if (username.equals(MainActivity.username)) {
                 Toast.makeText(context, "You can not send an entry to yourself!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            System.out.println("Send data: " + username + ", " + diaryPreviewList.get(position));
+            DatabaseReference diaryUsersReference = MainActivity.mDatabase.child("diary_users");
+            diaryUsersReference.get().addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Toast.makeText(context, "Failed to send the entry!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                boolean foundUsername = false;
+                for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
+                    String otherUsername = dataSnapshot.child("username").getValue().toString();
+                    if (username.equals(otherUsername)) {
+                        Toast.makeText(context, "Sent the diary entry to the user '" + username + "'!", Toast.LENGTH_SHORT).show();
+
+                        foundUsername = true;
+                        break;
+                    }
+                }
+
+                if (!foundUsername) {
+                    Toast.makeText(context, "There is no user by the name '" + username + "'!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             dialog.dismiss();
         });
 

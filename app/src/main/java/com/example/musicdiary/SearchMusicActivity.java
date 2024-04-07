@@ -36,7 +36,6 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     private String accessToken;
     private OkHttpClient client;
     private FragmentManager fragmentManager;
-    private ArrayList<TrackItem> searchResults;
     private String searchType;
     private TextView titleTextView;
     private TextView genreTextView;
@@ -59,7 +58,6 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         buttonSearch.setOnClickListener(view -> onClickSearch());
 
         fragmentManager = getSupportFragmentManager();
-        searchResults = new ArrayList<>();
 
         titleTextView = findViewById(R.id.titleTextView);
         genreTextView = findViewById(R.id.genreTextView);
@@ -116,70 +114,6 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         }
 
         hideKeyboard();
-    }
-
-    // 3cEYpjA9oz9GiPac4AsH4n
-    private void getPlaylistData(String playlistID) {
-        Request request = new Request.Builder().url("https://api.spotify.com/v1/playlists/" + playlistID)
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
-                    if (response.body() != null) {
-                        String responseString = response.body().string();
-                        JSONObject playlistData = new JSONObject(responseString);
-                        JSONObject tracks = playlistData.getJSONObject("tracks");
-                        searchResults = parseTracks(tracks);
-
-                        updateSearchResults(searchResults);
-                    }
-                } catch (JSONException jsonException) {
-                    runOnUiThread(() -> {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Please ensure that the playlist id that you entered is valid!", Toast.LENGTH_LONG);
-                        toast.show();
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
-            }
-        });
-    }
-
-    private void getSavedTracks() {
-        Request request = new Request.Builder().url("https://api.spotify.com/v1/me/tracks")
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
-                    if (response.body() != null) {
-                        String responseString = response.body().string();
-                        JSONObject tracks = new JSONObject(responseString);
-                        ArrayList<TrackItem> trackItems = parseTracks(tracks);
-
-                        updateSearchResults(trackItems);
-                    }
-                } catch (JSONException jsonException) {
-                    runOnUiThread(() -> {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Could not load saved tracks.", Toast.LENGTH_LONG);
-                        toast.show();
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
-            }
-        });
     }
 
     private String encodeString(String string) {
@@ -270,21 +204,6 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         }
 
         return new TrackItem(trackName, String.join(", ", artists), track.get("preview_url").toString(), trackIconURL);
-    }
-
-    private ArrayList<TrackItem> parseTracks(JSONObject tracks) throws JSONException {
-        JSONArray items = tracks.getJSONArray("items");
-        ArrayList<TrackItem> trackItems = new ArrayList<>();
-
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-            JSONObject track = item.getJSONObject("track");
-            TrackItem trackItem = getTrackData(track);
-
-            trackItems.add(trackItem);
-        }
-
-        return trackItems;
     }
 
     private void updateSearchResults(ArrayList<TrackItem> trackItems) {

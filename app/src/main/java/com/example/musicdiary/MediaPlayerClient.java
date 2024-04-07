@@ -7,7 +7,6 @@ import android.widget.Toast;
 import java.io.IOException;
 
 public class MediaPlayerClient {
-
     public static final MediaPlayer mediaPlayer = new MediaPlayer();
 
     public static void playTrack(String previewURL, Context context) {

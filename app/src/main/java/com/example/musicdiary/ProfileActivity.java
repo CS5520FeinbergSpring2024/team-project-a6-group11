@@ -5,12 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,17 +36,8 @@ public class ProfileActivity extends AppCompatActivity {
             Picasso.get().load(MainActivity.profilePictureURL).into(imageViewProfilePicture);
         }
 
-        // enable edit button
         Button editButton = findViewById(R.id.buttonEditProfile);
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Toast.makeText(ProfileActivity.this, "to be continued", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
-//                startActivity(intent);
-                startEditProfileActivity();
-            }
-        });
+        editButton.setOnClickListener(v -> startEditProfileActivity());
     }
 
     private void getUserNameByUserId(String userid, DatabaseReference mDatabase, TextView textViewUsername) {
