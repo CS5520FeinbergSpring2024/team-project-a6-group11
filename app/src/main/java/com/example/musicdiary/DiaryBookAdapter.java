@@ -3,7 +3,6 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.DiaryPreviewViewHolder> {
     public static List<DiaryPreviewItem> diaryPreviewList;
@@ -90,42 +90,70 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
 
         AlertDialog dialog = builder.create();
 
-        sendButton.setOnClickListener(v -> {
-            String username = usernameEditText.getText().toString().trim();
+        sendButton.setOnClickListener(view -> {
+            String toUsername = usernameEditText.getText().toString().trim();
 
-            if (username.isEmpty()) {
+            if (toUsername.isEmpty()) {
                 Toast.makeText(context, "Please enter a username.", Toast.LENGTH_SHORT).show();
+
                 return;
             }
-            if (username.equals(MainActivity.username)) {
+            if (toUsername.equals(MainActivity.username)) {
                 Toast.makeText(context, "You can not send an entry to yourself!", Toast.LENGTH_SHORT).show();
+
                 return;
             }
 
             DatabaseReference diaryUsersReference = MainActivity.mDatabase.child("diary_users");
             diaryUsersReference.get().addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
-                    Toast.makeText(context, "Failed to send the entry!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Failed to contact the database!", Toast.LENGTH_SHORT).show();
+
+                    dialog.dismiss();
                     return;
                 }
 
-                boolean foundUsername = false;
+                String toUsernameKey = null;
                 for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
-                    String otherUsername = dataSnapshot.child("username").getValue().toString();
-                    if (username.equals(otherUsername)) {
-                        Toast.makeText(context, "Sent the diary entry to the user '" + username + "'!", Toast.LENGTH_SHORT).show();
+                    String _toUsername = dataSnapshot.child("username").getValue().toString();
 
-                        foundUsername = true;
+                    if (toUsername.equals(_toUsername)) {
+                        toUsernameKey = dataSnapshot.getKey();
                         break;
                     }
                 }
 
-                if (!foundUsername) {
-                    Toast.makeText(context, "There is no user by the name '" + username + "'!", Toast.LENGTH_SHORT).show();
-                }
-            });
+                if (toUsernameKey == null) {
+                    Toast.makeText(context, "There is no user by the name '" + toUsername + "'!", Toast.LENGTH_SHORT).show();
 
-            dialog.dismiss();
+                    return;
+                }
+
+                DatabaseReference diaryUserReference = MainActivity.mDatabase.child("diary_users").child(toUsernameKey);
+
+                Map<String, Object> updateFields = new HashMap<>();
+                updateFields.put("author", diaryPreviewList.get(position).getAuthor());
+                updateFields.put("date", diaryPreviewList.get(position).getDate());
+                updateFields.put("trackName", diaryPreviewList.get(position).getTrackName());
+                updateFields.put("trackArtists", diaryPreviewList.get(position).getTrackArtists());
+                updateFields.put("coverURL", diaryPreviewList.get(position).getCoverURL());
+                updateFields.put("postText", diaryPreviewList.get(position).getPostText());
+                updateFields.put("previewURL", diaryPreviewList.get(position).getPreviewURL());
+                updateFields.put("mood", diaryPreviewList.get(position).getMood());
+
+                Task<Void> sendDiaryEntryTask = diaryUserReference.child("recv_diary_entries").updateChildren(updateFields);
+                sendDiaryEntryTask.addOnCompleteListener(_sendDiaryEntryTask -> {
+                    if (!_sendDiaryEntryTask.isSuccessful()) {
+                        Toast.makeText(context, "Failed to send the entry to the user '" + toUsername + "'!", Toast.LENGTH_SHORT).show();
+
+                        dialog.dismiss();
+                        return;
+                    }
+
+                    Toast.makeText(context, "Sent the diary entry to the user '" + toUsername + "'!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                });
+            });
         });
 
         dialog.show();
