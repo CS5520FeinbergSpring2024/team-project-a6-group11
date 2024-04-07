@@ -1,6 +1,7 @@
 package com.example.musicdiary;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 import android.widget.Button;
@@ -16,6 +17,14 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
+        Toolbar editProfileToolbar = findViewById(R.id.editProfileToolbar);
+        editProfileToolbar.setTitle("Edit Username");
+        setSupportActionBar(editProfileToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         EditText editUsernameEditText = findViewById(R.id.editUsernameEditText);
         Button saveButton = findViewById(R.id.saveButton);

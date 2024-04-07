@@ -2,6 +2,7 @@ package com.example.musicdiary;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +39,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         Button editButton = findViewById(R.id.buttonEditProfile);
         editButton.setOnClickListener(v -> startEditProfileActivity());
+
+        Toolbar profileToolbar = findViewById(R.id.profileToolbar);
+        profileToolbar.setTitle("Your Profile");
+        setSupportActionBar(profileToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void getUserNameByUserId(String userid, DatabaseReference mDatabase, TextView textViewUsername) {
