@@ -154,40 +154,40 @@ public class MainActivity extends AppCompatActivity {
                             userid = userData.getString("id");
                             username = userData.getString("display_name");
 
-                            // if not in database, store userid and username
-                            storeNewUsersToDatabase(userid, username);
-
                             try {
                                 JSONArray imagesArray = userData.getJSONArray("images");
                                 JSONObject imageObject = (JSONObject) imagesArray.get(imagesArray.length() - 1);
                                 profilePictureURL = imageObject.getString("url");
                             } catch (JSONException jsonException) {
+                                profilePictureURL = null;
                             }
 
-                            startHomepageActivity();
+                            // if not in database, store userid and username
+                            storeNewUsersToDatabase(userid, username);
                         }
                     } catch (JSONException e) {
+                        runOnUiThread(() -> hideProgressUI());
                         runOnUiThread(() -> new AlertDialog.Builder(MainActivity.this)
                                 .setTitle("This app is in development mode.")
                                 .setMessage("To log in, you must be registered in the Developer Dashboard.\nPlease contact chin.jef@northeastern.edu to have your email whitelisted.")
                                 .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
                                 .show());
                     }
-
-                    progressBar.setVisibility(View.INVISIBLE);
-                    loginTextView.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    loginTextView.setVisibility(View.INVISIBLE);
-
+                    runOnUiThread(() -> hideProgressUI());
                     Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
                             "Please try again later.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
+    }
+
+    private void hideProgressUI() {
+        progressBar.setVisibility(View.INVISIBLE);
+        loginTextView.setVisibility(View.INVISIBLE);
     }
 
     public void openLoginPage(View view) {
@@ -217,12 +217,16 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // If the user exists in the database, replace username with app username
                     MainActivity.username = snapshot.child("username").getValue(String.class);
+                    hideProgressUI();
+                    startHomepageActivity();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                hideProgressUI();
+                Toast.makeText(getApplicationContext(), "Failed to log into your Spotify account!\n" +
+                        "Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -235,24 +239,28 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String newUsername = username;
                 if (snapshot.getValue() != null) { // a user with the username exists
-                    newUsername = username + snapshot.getChildrenCount();
+                    newUsername = username + userid;
                 }
+                MainActivity.username = newUsername;
 
                 userDatabase.child(userid).child("username").setValue(newUsername)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 // User data stored successfully
                                 Toast.makeText(MainActivity.this, "User data stored successfully", Toast.LENGTH_SHORT).show();
+                                startHomepageActivity();
                             } else {
                                 // Error occurred while storing user data
                                 Toast.makeText(MainActivity.this, "Failed to store user data", Toast.LENGTH_SHORT).show();
                                 Log.e("Firebase Error", "Failed to store user data", task.getException());
                             }
+                            hideProgressUI();
                         });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                hideProgressUI();
                 Toast.makeText(MainActivity.this, "Failed to contact the database.", Toast.LENGTH_SHORT).show();
             }
         });
