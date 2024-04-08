@@ -12,6 +12,7 @@
     <string name="no_results_found">No results found!</string>
     <string name="log_in_with_spotify">Log in with Spotify</string>
     <string name="shared_diary">Shared Diary</string>
+    <string name="received_diary_entries">Received Entries</string>
     <string name="your_diary">Your Diary</string>
     <string name="view_profile">View Profile</string>
     <string name="send">Send</string>

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 
 public class HomepageActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,9 +29,8 @@ public class HomepageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void startMessagesActivity(View view) {
-        Intent intent = new Intent(this, DiaryBookActivity.class);
-        intent.putExtra("messagesReference", "recv_diary_entries");
+    public void startReceivedDiaryEntriesActivity(View view) {
+        Intent intent = new Intent(this, ReceivedDiaryEntriesActivity.class);
         startActivity(intent);
     }
 
