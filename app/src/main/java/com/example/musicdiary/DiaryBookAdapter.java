@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.DiaryPreviewViewHolder> {
-    public static List<DiaryPreviewItem> diaryPreviewList;
+    private final List<DiaryPreviewItem> diaryPreviewList;
 
     public DiaryBookAdapter(List<DiaryPreviewItem> diaryPreviewList) {
-        DiaryBookAdapter.diaryPreviewList = diaryPreviewList;
+        this.diaryPreviewList = diaryPreviewList;
     }
 
-    public static class DiaryPreviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class DiaryPreviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView dateTextView;
         TextView trackNameTextView;
         TextView authorPostTextView;
@@ -64,7 +64,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         }
     }
 
-    private static void viewEntry(Context context, int position) {
+    private void viewEntry(Context context, int position) {
         Intent intent = new Intent(context, SingleEntryActivity.class);
         intent.putExtra("openedEntryAuthorID", diaryPreviewList.get(position).getAuthorID());
         intent.putExtra("openedEntryDate", diaryPreviewList.get(position).getDate());
@@ -78,7 +78,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
         context.startActivity(intent);
     }
 
-    private static void sendEntry(Context context, int position) {
+    private void sendEntry(Context context, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Send Diary Entry");
 

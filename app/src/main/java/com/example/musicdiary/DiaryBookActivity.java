@@ -30,6 +30,7 @@ public class DiaryBookActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     public static String sharedDiaryReference;
     private String messagesReference;
+    private ValueEventListener diaryListener;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +61,32 @@ public class DiaryBookActivity extends AppCompatActivity {
             setToolbarTitle("Your Messages");
         }
 
-        populateDiaryEntries();
+        diaryListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                diaryEntries.clear();
+                if (snapshot.exists()) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        DiaryPreviewItem diaryPreviewItem = child.getValue(DiaryPreviewItem.class);
+                        diaryEntries.add(diaryPreviewItem);
+                    }
+                }
+
+                progressBar.setVisibility(View.INVISIBLE);
+                DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(diaryEntries);
+                diaryRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                diaryRecyclerView.setAdapter(diaryBookAdapter);
+
+                updateAddEntryButton();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        };
+
+        diaryReference.addValueEventListener(diaryListener);
     }
 
     private void setToolbarTitle(String title) {
@@ -91,35 +117,6 @@ public class DiaryBookActivity extends AppCompatActivity {
         return false;
     }
 
-    private void populateDiaryEntries() {
-        diaryReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                diaryEntries.clear();
-                if (snapshot.exists()) {
-                    for (DataSnapshot child : snapshot.getChildren()) {
-                        DiaryPreviewItem diaryPreviewItem = child.getValue(DiaryPreviewItem.class);
-                        diaryEntries.add(diaryPreviewItem);
-                    }
-                }
-
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(diaryEntries);
-                    diaryRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                    diaryRecyclerView.setAdapter(diaryBookAdapter);
-
-                    updateAddEntryButton();
-                });
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
     private void updateAddEntryButton() {
         if (currentEntryCreated(diaryEntries) || messagesReference != null) {
             addEntryButton.setVisibility(View.INVISIBLE);
@@ -132,5 +129,12 @@ public class DiaryBookActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MainActivity.checkIfAutoTimeEnabled(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        diaryReference.removeEventListener(diaryListener);
+        sharedDiaryReference = null;
     }
 }
