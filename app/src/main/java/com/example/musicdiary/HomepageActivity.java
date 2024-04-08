@@ -30,7 +30,7 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     public void startReceivedDiaryEntriesActivity(View view) {
-        Intent intent = new Intent(this, ReceivedDiaryEntriesActivity.class);
+        Intent intent = new Intent(this, MessagesActivity.class);
         startActivity(intent);
     }
 

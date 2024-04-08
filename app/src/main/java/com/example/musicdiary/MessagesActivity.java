@@ -19,8 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReceivedDiaryEntriesActivity extends AppCompatActivity {
-    private Toolbar toolbar;
+public class MessagesActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private List<DiaryPreviewItem> diaryEntries;
     private ProgressBar progressBar;
@@ -29,15 +28,15 @@ public class ReceivedDiaryEntriesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_received_diary_entries);
+        setContentView(R.layout.activity_messages);
 
-        toolbar = findViewById(R.id.receivedDiaryEntriesToolbar);
-        toolbar.setTitle("Received Diary Entries");
+        Toolbar toolbar = findViewById(R.id.receivedMessagesToolbar);
+        toolbar.setTitle("Received Messages");
         databaseReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("recv_diary_entries");
         diaryEntries = new ArrayList<>();
-        progressBar = findViewById(R.id.receivedDiaryEntriesProgressBar);
+        progressBar = findViewById(R.id.receivedMessagesProgressBar);
         progressBar.setVisibility(View.VISIBLE);
-        recyclerView = findViewById(R.id.receivedDiaryEntriesRecyclerView);
+        recyclerView = findViewById(R.id.receivedMessagesRecyclerView);
 
         populateDiaryEntries();
     }
@@ -47,7 +46,7 @@ public class ReceivedDiaryEntriesActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "You have not received any diary entries!", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getApplicationContext(), "You have not received any messages!", Toast.LENGTH_SHORT);
                     toast.show();
 
                     progressBar.setVisibility(View.INVISIBLE);
@@ -60,7 +59,7 @@ public class ReceivedDiaryEntriesActivity extends AppCompatActivity {
                 }
 
                 if (diaryEntries.size() == 0) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "You have not received any diary entries!", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getApplicationContext(), "You have not received any messages!", Toast.LENGTH_SHORT);
                     toast.show();
 
                     progressBar.setVisibility(View.INVISIBLE);
