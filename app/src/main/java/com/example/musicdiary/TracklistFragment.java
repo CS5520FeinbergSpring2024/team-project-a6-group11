@@ -22,6 +22,7 @@ public class TracklistFragment extends Fragment implements TrackRecyclerViewAdap
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
+    private Boolean isPlaying = false;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -77,13 +78,16 @@ public class TracklistFragment extends Fragment implements TrackRecyclerViewAdap
     @Override
     public void onPause() {
         super.onPause();
+        isPlaying = MediaPlayerClient.mediaPlayer.isPlaying();
         MediaPlayerClient.mediaPlayer.pause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        MediaPlayerClient.mediaPlayer.start();
+        if (isPlaying) {
+            MediaPlayerClient.mediaPlayer.start();
+        }
     }
 
     @Override

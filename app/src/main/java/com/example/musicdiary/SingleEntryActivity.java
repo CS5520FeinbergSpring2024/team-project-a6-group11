@@ -219,6 +219,14 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     public void updateEntryData(String newTrack, String newArtist, String newTextPost, String newMood) {
+        // to prevent long queries from returning status code 400:
+        if (newTrack.length() > 100) {
+            newTrack = newTrack.substring(0, 100);
+        }
+        if (newArtist.length() > 100) {
+            newArtist = newArtist.substring(0, 100);
+        }
+
         String apiURL = "https://api.spotify.com/v1/search";
         try {
             String trackEncoded = URLEncoder.encode(newTrack, "UTF-8");
@@ -318,6 +326,7 @@ public class SingleEntryActivity extends AppCompatActivity {
 
                                 checkEntryExists(currentDate); // in the database
                             } else {
+                                updatingView.setVisibility(View.GONE);
                                 Toast.makeText(SingleEntryActivity.this, "Could not find the given track.", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -502,6 +511,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
         MainActivity.checkIfAutoTimeEnabled(this);
     }
 
