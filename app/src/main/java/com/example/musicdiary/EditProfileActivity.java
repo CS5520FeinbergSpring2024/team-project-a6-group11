@@ -47,8 +47,12 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
+        updateUserDiary(mDatabase, userid, newUserName);
+    }
+
+    private void updateUserDiary(DatabaseReference mDatabase, String userid, String newUserName) {
         // Update the "author" fields of each diary entry:
-        DatabaseReference userDiaryReference =  mDatabase.child("diary_users").child(userid).child("diary_entries");
+        DatabaseReference userDiaryReference = mDatabase.child("diary_users").child(userid).child("diary_entries");
 
         userDiaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -62,14 +66,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
 
                 mDatabase.child("diary_users").child(userid).child("username").setValue(newUserName);
-                MainActivity.username = newUserName;
-
-                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Username updated successfully.", Toast.LENGTH_SHORT).show());
-                // Pass the updated username back to the previous activity
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("updatedUsername", newUserName);
-                setResult(RESULT_OK, resultIntent);
-                finish();
+                updateSharedDiary(mDatabase, userid, newUserName);
             }
 
             @Override
@@ -77,6 +74,39 @@ public class EditProfileActivity extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    private void updateSharedDiary(DatabaseReference mDatabase, String userid, String newUserName) {
+        DatabaseReference sharedDiaryReference = mDatabase.child("shared_diary_entries");
+        sharedDiaryReference.orderByChild("authorID").equalTo(userid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String key = snapshot.getKey();
+
+                    if (key != null) {
+                        sharedDiaryReference.child(key).child("author").setValue(newUserName);
+                    }
+                }
+
+                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Username updated successfully.", Toast.LENGTH_SHORT).show());
+                setMainUsernameAndFinish(newUserName);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void setMainUsernameAndFinish(String newUserName) {
+        MainActivity.username = newUserName;
+        // Pass the updated username back to the previous activity
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("updatedUsername", newUserName);
+        setResult(RESULT_OK, resultIntent);
+        finish();
     }
 
     @Override
