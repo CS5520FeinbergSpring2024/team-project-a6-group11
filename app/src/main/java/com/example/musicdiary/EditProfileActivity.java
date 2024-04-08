@@ -1,5 +1,6 @@
 package com.example.musicdiary;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -9,8 +10,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.content.Intent;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class EditProfileActivity extends AppCompatActivity {
     @Override
@@ -43,13 +47,36 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        mDatabase.child("diary_users").child(userid).child("username").setValue(newUserName);
-        Toast.makeText(EditProfileActivity.this, "Username updated successfully", Toast.LENGTH_SHORT).show();
-        // Pass the updated username back to the previous activity
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("updatedUsername", newUserName);
-        setResult(RESULT_OK, resultIntent);
-        finish();
+        // Update the "author" fields of each diary entry:
+        DatabaseReference userDiaryReference =  mDatabase.child("diary_users").child(userid).child("diary_entries");
+
+        userDiaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    String key = childSnapshot.getKey();
+
+                    if (key != null) {
+                        userDiaryReference.child(key).child("author").setValue(newUserName);
+                    }
+                }
+
+                mDatabase.child("diary_users").child(userid).child("username").setValue(newUserName);
+                MainActivity.username = newUserName;
+
+                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Username updated successfully.", Toast.LENGTH_SHORT).show());
+                // Pass the updated username back to the previous activity
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("updatedUsername", newUserName);
+                setResult(RESULT_OK, resultIntent);
+                finish();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     @Override
