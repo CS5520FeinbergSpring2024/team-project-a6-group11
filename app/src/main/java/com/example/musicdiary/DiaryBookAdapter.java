@@ -66,6 +66,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
 
     private static void viewEntry(Context context, int position) {
         Intent intent = new Intent(context, SingleEntryActivity.class);
+        intent.putExtra("openedEntryAuthorID", diaryPreviewList.get(position).getAuthorID());
         intent.putExtra("openedEntryDate", diaryPreviewList.get(position).getDate());
         intent.putExtra("openedEntryTrackName", diaryPreviewList.get(position).getTrackName());
         intent.putExtra("openedEntryTrackArtists", diaryPreviewList.get(position).getTrackArtists());

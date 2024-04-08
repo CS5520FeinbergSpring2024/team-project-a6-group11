@@ -12,8 +12,8 @@
         android:layout_height="wrap_content"
         android:onClick="startProfileActivity"
         android:text="@string/view_profile"
-        app:layout_constraintBottom_toTopOf="@+id/sharedDiaryButton"
-        app:layout_constraintEnd_toStartOf="@+id/yourDiaryButton"
+        app:layout_constraintBottom_toTopOf="@+id/yourDiaryButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,19 +27,31 @@
         app:layout_constraintBottom_toTopOf="@+id/sharedDiaryButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/viewProfileButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewProfileButton" />
 
     <Button
         android:id="@+id/sharedDiaryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/shared_diary"
         android:onClick="startSharedDiaryActivity"
+        android:text="@string/shared_diary"
+        app:layout_constraintBottom_toTopOf="@+id/messagesButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yourDiaryButton" />
+
+    <Button
+        android:id="@+id/messagesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Messages"
+        android:onClick="startMessagesActivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viewProfileButton" />
+        app:layout_constraintTop_toBottomOf="@+id/sharedDiaryButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

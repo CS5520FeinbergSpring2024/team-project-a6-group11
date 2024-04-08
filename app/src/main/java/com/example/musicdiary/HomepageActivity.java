@@ -30,6 +30,12 @@ public class HomepageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void startMessagesActivity(View view) {
+        Intent intent = new Intent(this, DiaryBookActivity.class);
+        intent.putExtra("messagesReference", "recv_diary_entries");
+        startActivity(intent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();

@@ -29,6 +29,7 @@ public class DiaryBookActivity extends AppCompatActivity {
     private List<DiaryPreviewItem> diaryEntries;
     private ProgressBar progressBar;
     public static String sharedDiaryReference;
+    private String messagesReference;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +48,16 @@ public class DiaryBookActivity extends AppCompatActivity {
         }
 
         sharedDiaryReference = getIntent().getStringExtra("sharedDiaryReference"); // redefine every time this activity is created
+        messagesReference = getIntent().getStringExtra("messagesReference");
         if (sharedDiaryReference != null) {
             diaryReference = MainActivity.mDatabase.child(sharedDiaryReference);
             setToolbarTitle("Shared Diary");
-        } else {
+        } else if (messagesReference == null) {
             diaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
             setToolbarTitle("Your Diary");
+        } else {
+            diaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child(messagesReference);
+            setToolbarTitle("Your Messages");
         }
 
         populateDiaryEntries();
@@ -116,7 +121,7 @@ public class DiaryBookActivity extends AppCompatActivity {
     }
 
     private void updateAddEntryButton() {
-        if (currentEntryCreated(diaryEntries)) {
+        if (currentEntryCreated(diaryEntries) || messagesReference != null) {
             addEntryButton.setVisibility(View.INVISIBLE);
         } else {
             addEntryButton.setVisibility(View.VISIBLE);

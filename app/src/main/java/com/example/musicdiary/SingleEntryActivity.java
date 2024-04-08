@@ -99,6 +99,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
 
+        String openedEntryAuthorID = getIntent().getStringExtra("openedEntryAuthorID");
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         trackName = getIntent().getStringExtra("openedEntryTrackName");
         allArtists = getIntent().getStringExtra("openedEntryTrackArtists");
@@ -106,6 +107,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         textPost = getIntent().getStringExtra("openedEntryPostText");
         String openedPreviewURL = getIntent().getStringExtra("openedPreviewURL");
         mood = getIntent().getStringExtra("openedMood");
+        String sharedDiaryReference = getIntent().getStringExtra("sharedDiaryReference");
 
         LocalDate localDate = LocalDate.now();
         dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
@@ -123,7 +125,9 @@ public class SingleEntryActivity extends AppCompatActivity {
                     openedEntryLocalDate = LocalDate.parse(openedEntryDate, dateTimeFormatter);
                     // only allow users to update an entry if the current date matches the entry date
                     if (localDate.equals(openedEntryLocalDate)) {
-                        updateButton.setVisibility(View.VISIBLE);
+                        if ((openedEntryAuthorID != null && openedEntryAuthorID.equals(MainActivity.userid)) || sharedDiaryReference != null) { // If not in the shared diary, user IDs must match to update
+                            updateButton.setVisibility(View.VISIBLE);
+                        }
                     }
                 } catch (DateTimeParseException ignored) {
 
@@ -180,7 +184,6 @@ public class SingleEntryActivity extends AppCompatActivity {
             }
         });
 
-        String sharedDiaryReference = getIntent().getStringExtra("sharedDiaryReference");
         if (sharedDiaryReference != null) {
             diaryReference = MainActivity.mDatabase.child(sharedDiaryReference);
         } else {
