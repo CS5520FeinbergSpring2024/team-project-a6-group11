@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.content.Intent;
 
@@ -17,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class EditProfileActivity extends AppCompatActivity {
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,8 @@ public class EditProfileActivity extends AppCompatActivity {
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         saveButton.setOnClickListener(v -> updateUserName(userid, editUsernameEditText, mDatabase));
+
+        progressBar = findViewById(R.id.editProfileProgressBar);
     }
 
     private void updateUserName(String userid, EditText editUsernameEditText, DatabaseReference mDatabase) {
@@ -56,6 +61,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void checkIfUsernameExists(DatabaseReference mDatabase, DatabaseReference userDatabase, String userid, String newUserName) {
+        progressBar.setVisibility(View.VISIBLE);
 
         userDatabase.orderByChild("username").equalTo(newUserName).addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -63,6 +69,7 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getValue() != null) {
                     Toast.makeText(EditProfileActivity.this, "A user with the name \"" + newUserName + "\" already exists.", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.INVISIBLE);
                 } else {
                     updateUserDiary(mDatabase, userid, newUserName);
                 }
@@ -71,6 +78,7 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(EditProfileActivity.this, "Failed to contact the database.", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -96,7 +104,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show());
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -114,13 +123,15 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
                 }
 
-                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Username updated successfully.", Toast.LENGTH_SHORT).show());
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(EditProfileActivity.this, "Username updated successfully.", Toast.LENGTH_SHORT).show();
                 setMainUsernameAndFinish(newUserName);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                runOnUiThread(() -> Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show());
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(EditProfileActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show();
             }
         });
     }
