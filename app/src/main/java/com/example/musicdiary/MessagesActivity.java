@@ -32,6 +32,12 @@ public class MessagesActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.receivedMessagesToolbar);
         toolbar.setTitle("Received Messages");
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         databaseReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("recv_diary_entries");
         diaryEntries = new ArrayList<>();
         progressBar = findViewById(R.id.receivedMessagesProgressBar);
