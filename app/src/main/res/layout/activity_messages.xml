@@ -7,13 +7,13 @@
     tools:context=".MessagesActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/receivedMessagesToolbar"
+        android:id="@+id/messagesToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:layout_constraintBottom_toTopOf="@id/receivedMessagesRecyclerView"
+        app:layout_constraintBottom_toTopOf="@id/messagesRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,17 +22,17 @@
         app:titleTextColor="@android:color/white" />
 
     <ProgressBar
-        android:id="@+id/receivedMessagesProgressBar"
+        android:id="@+id/messagesProgressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/receivedMessagesToolbar" />
+        app:layout_constraintTop_toBottomOf="@id/messagesToolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/receivedMessagesRecyclerView"
+        android:id="@+id/messagesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="10dp"
@@ -40,6 +40,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/receivedMessagesToolbar"/>
+        app:layout_constraintTop_toBottomOf="@+id/messagesToolbar"/>
+
+    <TextView
+        android:id="@+id/messagesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You have no messages!"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/messagesToolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

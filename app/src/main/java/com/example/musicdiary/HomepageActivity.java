@@ -29,7 +29,7 @@ public class HomepageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void startReceivedDiaryEntriesActivity(View view) {
+    public void startMessagesActivity(View view) {
         Intent intent = new Intent(this, MessagesActivity.class);
         startActivity(intent);
     }
