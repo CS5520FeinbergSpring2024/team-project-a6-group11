@@ -115,11 +115,14 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
 
                 String toUsernameKey = null;
                 for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
-                    String _toUsername = dataSnapshot.child("username").getValue().toString();
+                    Object _toUsernameObject = dataSnapshot.child("username").getValue();
+                    if (_toUsernameObject != null) {
+                        String _toUsername = _toUsernameObject.toString();
 
-                    if (toUsername.equals(_toUsername)) {
-                        toUsernameKey = dataSnapshot.getKey();
-                        break;
+                        if (toUsername.equals(_toUsername)) {
+                            toUsernameKey = dataSnapshot.getKey();
+                            break;
+                        }
                     }
                 }
 
@@ -132,6 +135,7 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
                 DatabaseReference diaryUserReference = MainActivity.mDatabase.child("diary_users").child(toUsernameKey);
 
                 Map<String, Object> updateFields = new HashMap<>();
+                updateFields.put("authorID", diaryPreviewList.get(position).getAuthorID());
                 updateFields.put("author", diaryPreviewList.get(position).getAuthor());
                 updateFields.put("date", diaryPreviewList.get(position).getDate());
                 updateFields.put("trackName", diaryPreviewList.get(position).getTrackName());
@@ -141,7 +145,14 @@ public class DiaryBookAdapter extends RecyclerView.Adapter<DiaryBookAdapter.Diar
                 updateFields.put("previewURL", diaryPreviewList.get(position).getPreviewURL());
                 updateFields.put("mood", diaryPreviewList.get(position).getMood());
 
-                Task<Void> sendDiaryEntryTask = diaryUserReference.child("recv_diary_entries").updateChildren(updateFields);
+                String messageID = diaryUserReference.child("recv_diary_entries").push().getKey();
+
+                if (messageID == null) {
+                    Toast.makeText(context, "Failed to send the entry to the user '" + toUsername + "'!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Task<Void> sendDiaryEntryTask = diaryUserReference.child("recv_diary_entries").child(messageID).updateChildren(updateFields);
                 sendDiaryEntryTask.addOnCompleteListener(_sendDiaryEntryTask -> {
                     if (!_sendDiaryEntryTask.isSuccessful()) {
                         Toast.makeText(context, "Failed to send the entry to the user '" + toUsername + "'!", Toast.LENGTH_SHORT).show();

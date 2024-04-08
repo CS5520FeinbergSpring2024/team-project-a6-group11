@@ -344,7 +344,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.d("Firebase", "No entry exists for date " + currentDate + ". Creating a new entry.");
-                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL, mood);
+                            DiaryPreviewItem entry = new DiaryPreviewItem(MainActivity.userid, MainActivity.username, currentDate, trackName, allArtists, imageUrl, textPost, previewURL, mood);
                             currEntryId = diaryReference.push().getKey();
                             if (currEntryId != null) {
                                 diaryReference.child(currEntryId).setValue(entry);
@@ -359,6 +359,8 @@ public class SingleEntryActivity extends AppCompatActivity {
 
     private void updateExistingEntry(String entryKey, String newTrack, String newArtists, String newImageUrl, String newTextPost, String newPreviewURL, String newMood) {
         Map<String, Object> updateFields = new HashMap<>();
+        updateFields.put("authorID", MainActivity.userid);
+        updateFields.put("author", MainActivity.username);
         updateFields.put("trackName", newTrack);
         updateFields.put("trackArtists", newArtists);
         updateFields.put("coverURL", newImageUrl);

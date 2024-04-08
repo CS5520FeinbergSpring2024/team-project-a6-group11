@@ -3,6 +3,7 @@ package com.example.musicdiary;
 import androidx.annotation.NonNull;
 
 public class DiaryPreviewItem {
+    private String authorID;
     private String author;
     private String date;
     private String trackName;
@@ -14,7 +15,8 @@ public class DiaryPreviewItem {
 
     public DiaryPreviewItem() { }
 
-    public DiaryPreviewItem(String author, String date, String trackName, String trackArtists, String coverURL, String postText, String previewURL, String mood) {
+    public DiaryPreviewItem(String authorID, String author, String date, String trackName, String trackArtists, String coverURL, String postText, String previewURL, String mood) {
+        this.authorID = authorID;
         this.author = author;
         this.date = date;
         this.trackName = trackName;
@@ -23,6 +25,10 @@ public class DiaryPreviewItem {
         this.postText = postText;
         this.previewURL = previewURL;
         this.mood = mood;
+    }
+
+    public String getAuthorID() {
+        return authorID;
     }
 
     public String getAuthor() {
@@ -61,7 +67,8 @@ public class DiaryPreviewItem {
     @Override
     public String toString() {
         return "DiaryPreviewItem{" +
-                "author='" + author + '\'' +
+                "authorID='" + authorID + '\'' +
+                ", author='" + author + '\'' +
                 ", date='" + date + '\'' +
                 ", trackName='" + trackName + '\'' +
                 ", trackArtists='" + trackArtists + '\'' +
