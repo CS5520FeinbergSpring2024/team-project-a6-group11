@@ -213,17 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!snapshot.exists()) {
                     // User ID does not exist in the database
                     // Store the user ID and username in the database
-                    mDatabase.child("diary_users").child(userid).child("username").setValue(username)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    // User data stored successfully
-                                    Toast.makeText(MainActivity.this, "User data stored successfully", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    // Error occurred while storing user data
-                                    Toast.makeText(MainActivity.this, "Failed to store user data", Toast.LENGTH_SHORT).show();
-                                    Log.e("Firebase Error", "Failed to store user data", task.getException());
-                                }
-                            });
+                    checkIfUsernameExists(mDatabase.child("diary_users"), username, userid);
                 } else {
                     // If the user exists in the database, replace username with app username
                     MainActivity.username = snapshot.child("username").getValue(String.class);
@@ -233,6 +223,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+    }
+
+    private void checkIfUsernameExists(DatabaseReference userDatabase, String username, String userid) {
+
+        userDatabase.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String newUsername = username;
+                if (snapshot.getValue() != null) { // a user with the username exists
+                    newUsername = username + snapshot.getChildrenCount();
+                }
+
+                userDatabase.child(userid).child("username").setValue(newUsername)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // User data stored successfully
+                                Toast.makeText(MainActivity.this, "User data stored successfully", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Error occurred while storing user data
+                                Toast.makeText(MainActivity.this, "Failed to store user data", Toast.LENGTH_SHORT).show();
+                                Log.e("Firebase Error", "Failed to store user data", task.getException());
+                            }
+                        });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Failed to contact the database.", Toast.LENGTH_SHORT).show();
             }
         });
     }

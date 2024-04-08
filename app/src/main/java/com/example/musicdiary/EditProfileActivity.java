@@ -47,7 +47,32 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        updateUserDiary(mDatabase, userid, newUserName);
+        if (newUserName.equals(MainActivity.username)) { // username was not updated
+            finish();
+            return;
+        }
+
+        checkIfUsernameExists(mDatabase, mDatabase.child("diary_users"), userid, newUserName);
+    }
+
+    private void checkIfUsernameExists(DatabaseReference mDatabase, DatabaseReference userDatabase, String userid, String newUserName) {
+
+        userDatabase.orderByChild("username").equalTo(newUserName).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    Toast.makeText(EditProfileActivity.this, "A user with the name \"" + newUserName + "\" already exists.", Toast.LENGTH_SHORT).show();
+                } else {
+                    updateUserDiary(mDatabase, userid, newUserName);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(EditProfileActivity.this, "Failed to contact the database.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateUserDiary(DatabaseReference mDatabase, String userid, String newUserName) {
