@@ -80,8 +80,6 @@ public class MessagesActivity extends AppCompatActivity {
                     DiaryBookAdapter diaryBookAdapter = new DiaryBookAdapter(diaryEntries);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                     recyclerView.setAdapter(diaryBookAdapter);
-
-                    progressBar.setVisibility(View.INVISIBLE);
                 });
             }
 
