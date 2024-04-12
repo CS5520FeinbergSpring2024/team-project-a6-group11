@@ -1,5 +1,7 @@
 package com.example.musicdiary;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -78,6 +81,22 @@ public class DiaryBookActivity extends AppCompatActivity {
                 diaryRecyclerView.setAdapter(diaryBookAdapter);
 
                 updateAddEntryButton();
+
+                // swipe to delete
+                ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                        int position = viewHolder.getAdapterPosition();
+                        DiaryPreviewItem swipedEntry = diaryEntries.get(position);
+                        showDeleteConfirmationDialog(swipedEntry, position);
+                    }
+                };
+                new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(diaryRecyclerView);
             }
 
             @Override
@@ -137,5 +156,53 @@ public class DiaryBookActivity extends AppCompatActivity {
         super.onDestroy();
         diaryReference.removeEventListener(diaryListener);
         sharedDiaryReference = null;
+    }
+
+    private void showDeleteConfirmationDialog(final DiaryPreviewItem entry, final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Entry");
+        builder.setMessage("Are you sure you want to delete this entry?");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Remove the entry from the list
+                diaryEntries.remove(position);
+                // Notify the adapter of the change
+                diaryRecyclerView.getAdapter().notifyItemRemoved(position);
+                // Delete the entry from the database
+                diaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot entrySnapshot : dataSnapshot.getChildren()) {
+                            DiaryPreviewItem currEntry = entrySnapshot.getValue(DiaryPreviewItem.class);
+                            // As cannot get entry id from diary preview item, deleted the entry by checking if the entry matches the one you want to delete based on its attributes
+                            if (currEntry != null && currEntry.getAuthor().equals(entry.getAuthor()) && currEntry.getCoverURL().equals(entry.getCoverURL())
+                                    && currEntry.getDate().equals(entry.getDate()) && currEntry.getTrackName().equals(entry.getTrackName())) {
+                                entrySnapshot.getRef().removeValue();
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Handle errors
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                diaryRecyclerView.getAdapter().notifyItemChanged(position);
+            }
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                diaryRecyclerView.getAdapter().notifyItemChanged(position);
+            }
+        });
+        builder.show();
     }
 }
