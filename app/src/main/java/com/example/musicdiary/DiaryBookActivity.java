@@ -100,6 +100,7 @@ public class DiaryBookActivity extends AppCompatActivity {
         if (sharedDiaryReference != null) {
             intent.putExtra("sharedDiaryReference", sharedDiaryReference);
         }
+        intent.putExtra("newEntry", true);
         startActivity(intent);
     }
 

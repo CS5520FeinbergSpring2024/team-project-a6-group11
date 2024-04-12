@@ -146,7 +146,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         if (openedEntryCoverURL != null) {
             loadAlbumImage(openedEntryCoverURL);
         } else {
-            albumImageView.setVisibility(View.INVISIBLE);
+            albumImageView.setVisibility(View.GONE);
         }
 
         if (openedPreviewURL != null) {
@@ -156,7 +156,7 @@ public class SingleEntryActivity extends AppCompatActivity {
         if (textPost != null && !textPost.isEmpty()) {
             extraTextView.setText(textPost);
         } else {
-            postTextCardView.setVisibility(View.INVISIBLE);
+            postTextCardView.setVisibility(View.GONE);
         }
 
         if (mood != null) {
@@ -175,7 +175,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                     String trackArtists = data.getStringExtra("trackArtists");
 
                     if (trackEditText == null || artistEditText == null) {
-                        onClickUpdateEntry(getCurrentFocus()); // reopen the dialog if for some reason it is dismissed
+                        onCreateDialog("Edit Entry", "Update Entry").show(); // reopen the dialog if for some reason it is dismissed
                     }
 
                     trackEditText.setText(trackName);
@@ -188,6 +188,11 @@ public class SingleEntryActivity extends AppCompatActivity {
             diaryReference = MainActivity.mDatabase.child(sharedDiaryReference);
         } else {
             diaryReference = MainActivity.mDatabase.child("diary_users").child(MainActivity.userid).child("diary_entries");
+        }
+
+        boolean isNewEntry = getIntent().getBooleanExtra("newEntry", false);
+        if (isNewEntry) {
+            onCreateDialog("New Entry", "Add Entry").show();
         }
 
         MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
@@ -392,12 +397,12 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     public void onClickUpdateEntry(View view) {
-        onCreateDialog().show();
+        onCreateDialog("Edit Entry", "Update Entry").show();
     }
 
-    public Dialog onCreateDialog() {
+    public Dialog onCreateDialog(String title, String positiveButtonText) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Edit Entry");
+        builder.setTitle(title);
 
         View view = getLayoutInflater().inflate(R.layout.dialog_edit_entry, null);
         builder.setView(view);
@@ -425,7 +430,7 @@ public class SingleEntryActivity extends AppCompatActivity {
             activityResultLauncher.launch(intent);
         });
 
-        builder.setPositiveButton("Update Entry", (dialog, id) -> {
+        builder.setPositiveButton(positiveButtonText, (dialog, id) -> {
             String newTrack = trackEditText.getText().toString().trim();
             String newArtist = artistEditText.getText().toString().trim();
             String newTextPost = textPostEditText.getText().toString().trim();

@@ -5,7 +5,6 @@ package com.example.musicdiary;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -24,9 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
 
-import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
@@ -50,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     public static String username;
     public static String userid;
     public static String profilePictureURL = null;
-    protected static SpotifyAppRemote mSpotifyAppRemote = null;
     private OkHttpClient client = new OkHttpClient();
     public static DatabaseReference mDatabase;
     private ProgressBar progressBar;
@@ -69,43 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        {
-            PackageManager packageManager = this.getPackageManager();
-            try {
-                packageManager.getPackageInfo("com.spotify.music", 0);
-            } catch (PackageManager.NameNotFoundException nameNotFoundException) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Spotify is not installed!")
-                        .setMessage("This application requires Spotify to be installed on your phone! " +
-                                "Please install it in order to use this application!")
-                        .setPositiveButton("Download Spotify", (dialog, which) -> AuthorizationClient.openDownloadSpotifyActivity(this))
-                        .setCancelable(false)
-                        .show();
-            }
-        }
-
         checkIfAutoTimeEnabled(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-    }
-
-    private void connected() {
-        // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-
-        // Subscribe to PlayerState
-        mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(playerState -> {
-                    final Track track = playerState.track;
-                    if (track != null) {
-                        Log.d("MainActivity", track.name + " by " + track.artist.name);
-                    }
-                });
     }
 
     protected void onNewIntent(Intent intent) {
