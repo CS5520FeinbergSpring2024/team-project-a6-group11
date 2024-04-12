@@ -93,6 +93,13 @@ public class DiaryBookActivity extends AppCompatActivity {
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                         int position = viewHolder.getAdapterPosition();
                         DiaryPreviewItem swipedEntry = diaryEntries.get(position);
+
+                        // Only allow the author of the entry to delete it
+                        if (!swipedEntry.getAuthor().equals(MainActivity.username)) {
+                            diaryRecyclerView.getAdapter().notifyItemChanged(position);
+                            return;
+                        }
+
                         showDeleteConfirmationDialog(swipedEntry, position);
                     }
                 };
