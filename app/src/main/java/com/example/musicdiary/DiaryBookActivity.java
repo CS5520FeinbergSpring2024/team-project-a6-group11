@@ -183,8 +183,7 @@ public class DiaryBookActivity extends AppCompatActivity {
                         for (DataSnapshot entrySnapshot : dataSnapshot.getChildren()) {
                             DiaryPreviewItem currEntry = entrySnapshot.getValue(DiaryPreviewItem.class);
                             // As cannot get entry id from diary preview item, deleted the entry by checking if the entry matches the one you want to delete based on its attributes
-                            if (currEntry != null && currEntry.getAuthor().equals(entry.getAuthor()) && currEntry.getCoverURL().equals(entry.getCoverURL())
-                                    && currEntry.getDate().equals(entry.getDate()) && currEntry.getTrackName().equals(entry.getTrackName())) {
+                            if (currEntry != null && currEntry.getAuthor().equals(entry.getAuthor()) && currEntry.getDate().equals(entry.getDate())) {
                                 entrySnapshot.getRef().removeValue();
                                 break;
                             }
