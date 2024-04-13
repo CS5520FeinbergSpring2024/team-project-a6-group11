@@ -1,7 +1,6 @@
 package com.example.musicdiary;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -71,7 +70,7 @@ public class DiaryBookActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot child : snapshot.getChildren()) {
                         DiaryPreviewItem diaryPreviewItem = child.getValue(DiaryPreviewItem.class);
-                        diaryEntries.add(diaryPreviewItem);
+                        diaryEntries.add(0, diaryPreviewItem); // order entries by newest first
                     }
                 }
 
@@ -96,7 +95,9 @@ public class DiaryBookActivity extends AppCompatActivity {
 
                         // Only allow the author of the entry to delete it
                         if (!swipedEntry.getAuthor().equals(MainActivity.username)) {
-                            diaryRecyclerView.getAdapter().notifyItemChanged(position);
+                            if (diaryRecyclerView.getAdapter() != null) {
+                                diaryRecyclerView.getAdapter().notifyItemChanged(position);
+                            }
                             return;
                         }
 
@@ -169,43 +170,40 @@ public class DiaryBookActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Entry");
         builder.setMessage("Are you sure you want to delete this entry?");
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Remove the entry from the list
-                diaryEntries.remove(position);
-                // Notify the adapter of the change
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            // Remove the entry from the list
+            diaryEntries.remove(position);
+            // Notify the adapter of the change
+            if (diaryRecyclerView.getAdapter() != null) {
                 diaryRecyclerView.getAdapter().notifyItemRemoved(position);
-                // Delete the entry from the database
-                diaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot entrySnapshot : dataSnapshot.getChildren()) {
-                            DiaryPreviewItem currEntry = entrySnapshot.getValue(DiaryPreviewItem.class);
-                            // As cannot get entry id from diary preview item, deleted the entry by checking if the entry matches the one you want to delete based on its attributes
-                            if (currEntry != null && currEntry.getAuthor().equals(entry.getAuthor()) && currEntry.getDate().equals(entry.getDate())) {
-                                entrySnapshot.getRef().removeValue();
-                                break;
-                            }
+            }
+            // Delete the entry from the database
+            diaryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot entrySnapshot : dataSnapshot.getChildren()) {
+                        DiaryPreviewItem currEntry = entrySnapshot.getValue(DiaryPreviewItem.class);
+                        // As cannot get entry id from diary preview item, deleted the entry by checking if the entry matches the one you want to delete based on its attributes
+                        if (currEntry != null && currEntry.getAuthor().equals(entry.getAuthor()) && currEntry.getDate().equals(entry.getDate())) {
+                            entrySnapshot.getRef().removeValue();
+                            break;
                         }
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Handle errors
-                    }
-                });
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle errors
+                }
+            });
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            if (diaryRecyclerView.getAdapter() != null) {
                 diaryRecyclerView.getAdapter().notifyItemChanged(position);
             }
         });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
+        builder.setOnCancelListener(dialog -> {
+            if (diaryRecyclerView.getAdapter() != null) {
                 diaryRecyclerView.getAdapter().notifyItemChanged(position);
             }
         });
