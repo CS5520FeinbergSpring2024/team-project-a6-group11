@@ -237,14 +237,18 @@ public class SingleEntryActivity extends AppCompatActivity {
         switch (mood) {
             case "I'm feeling good":
                 moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_good, null));
+                moodIcon.setVisibility(View.VISIBLE);
                 break;
             case "I'm feeling neutral":
                 moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_neutral, null));
+                moodIcon.setVisibility(View.VISIBLE);
                 break;
             case "I'm feeling bad":
                 moodIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.feeling_bad, null));
+                moodIcon.setVisibility(View.VISIBLE);
                 break;
             default:
+                moodIcon.setVisibility(View.GONE);
                 moodIcon.setImageDrawable(null);
         }
     }

@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginVertical="10dp"
                 android:textAlignment="center" />
 
             <androidx.cardview.widget.CardView
@@ -127,7 +127,8 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="10dp"
-                android:contentDescription="@string/mood_icon" />
+                android:contentDescription="@string/mood_icon"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/updateButton"
