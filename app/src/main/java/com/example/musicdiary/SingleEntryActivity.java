@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +81,8 @@ public class SingleEntryActivity extends AppCompatActivity {
     private ImageView moodIcon;
     private String mood = "None";
     private LinearLayout updatingView;
+    private ScrollView scrollView;
+    private ImageView scrollHintView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,6 +199,29 @@ public class SingleEntryActivity extends AppCompatActivity {
         }
 
         MediaPlayerClient.mediaPlayer.setOnCompletionListener(mp -> pauseTrack());
+
+        scrollView = findViewById(R.id.scrollView);
+        scrollHintView = findViewById(R.id.scrollHintView);
+
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > 0) { // the user has scrolled
+                scrollHintView.animate().alpha(0.0f).setDuration(200).start(); // hide the scroll hint
+            }
+        });
+
+        toggleScrollHint();
+    }
+
+    private void toggleScrollHint() {
+        scrollView.post(() -> {
+            int totalHeight = scrollView.getChildAt(0).getHeight();
+            int visibleHeight = scrollView.getHeight();
+            int scrollPosition = scrollView.getScrollY();
+            boolean scrollable = (totalHeight - visibleHeight) > 0;
+            boolean isAtBottom = scrollPosition == (totalHeight - visibleHeight);
+
+            scrollHintView.setVisibility((scrollable && !isAtBottom) ? View.VISIBLE : View.INVISIBLE);
+        });
     }
 
     private void updateMoodText(String mood) {
@@ -328,6 +354,8 @@ public class SingleEntryActivity extends AppCompatActivity {
                                 getIntent().putExtra("openedEntryPostText", textPost);
                                 getIntent().putExtra("openedPreviewURL", previewURL);
                                 getIntent().putExtra("openedMood", mood);
+
+                                toggleScrollHint();
 
                                 checkEntryExists(currentDate); // in the database
                             } else {
@@ -526,5 +554,6 @@ public class SingleEntryActivity extends AppCompatActivity {
         pauseTrack();
         MediaPlayerClient.mediaPlayer.setOnCompletionListener(null);
         albumImageView.setOnClickListener(null);
+        scrollView.setOnScrollChangeListener(null);
     }
 }

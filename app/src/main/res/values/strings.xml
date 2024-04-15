@@ -27,6 +27,7 @@
     <string name="save">Save</string>
     <string name="profile_picture">Profile picture</string>
     <string name="edit_username">Edit Username</string>
+    <string name="scroll_hint">Scroll Hint</string>
     <string-array name="spinner_items">
         <item>None</item>
         <item>I\'m feeling good</item>
