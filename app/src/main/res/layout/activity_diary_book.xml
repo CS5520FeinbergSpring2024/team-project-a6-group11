@@ -5,6 +5,18 @@
     android:layout_height="match_parent">
 
 
+    <TextView
+        android:id="@+id/informationalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/diaryRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/diaryBookToolbar" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/diaryRecyclerView"
         android:layout_width="match_parent"
@@ -14,7 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/diaryBookToolbar"
+        app:layout_constraintTop_toBottomOf="@+id/informationalTextView"
         app:layout_constraintVertical_bias="0.5" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,15 +49,15 @@
         android:id="@+id/diaryBookToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:layout_constraintBottom_toTopOf="@id/diaryRecyclerView"
+        app:layout_constraintBottom_toTopOf="@id/informationalTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="?attr/colorPrimary"
-        app:titleTextColor="?attr/colorOnPrimary"
-        app:theme="@style/ThemeOverlay.MaterialComponents.Toolbar.Primary" />
+        app:theme="@style/ThemeOverlay.MaterialComponents.Toolbar.Primary"
+        app:titleTextColor="?attr/colorOnPrimary" />
 
     <ProgressBar
         android:id="@+id/diaryBookProgressBar"

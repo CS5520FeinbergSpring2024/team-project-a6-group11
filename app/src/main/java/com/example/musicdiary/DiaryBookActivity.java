@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +35,7 @@ public class DiaryBookActivity extends AppCompatActivity {
     public static String sharedDiaryReference;
     private String messagesReference;
     private ValueEventListener diaryListener;
+    private TextView informationalTextView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +82,11 @@ public class DiaryBookActivity extends AppCompatActivity {
                 diaryRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 diaryRecyclerView.setAdapter(diaryBookAdapter);
 
+                if (diaryEntries.isEmpty()) {
+                    informationalTextView.setText(R.string.this_diary_book_is_empty);
+                    informationalTextView.setVisibility(View.VISIBLE);
+                }
+
                 updateAddEntryButton();
 
                 // swipe to delete
@@ -97,6 +105,7 @@ public class DiaryBookActivity extends AppCompatActivity {
                         if (!swipedEntry.getAuthor().equals(MainActivity.username)) {
                             if (diaryRecyclerView.getAdapter() != null) {
                                 diaryRecyclerView.getAdapter().notifyItemChanged(position);
+                                Toast.makeText(DiaryBookActivity.this, "You can only delete your own entries.", Toast.LENGTH_SHORT).show();
                             }
                             return;
                         }
@@ -114,6 +123,8 @@ public class DiaryBookActivity extends AppCompatActivity {
         };
 
         diaryReference.addValueEventListener(diaryListener);
+
+        informationalTextView = findViewById(R.id.informationalTextView);
     }
 
     private void setToolbarTitle(String title) {
@@ -148,8 +159,13 @@ public class DiaryBookActivity extends AppCompatActivity {
     private void updateAddEntryButton() {
         if (currentEntryCreated(diaryEntries) || messagesReference != null) {
             addEntryButton.setVisibility(View.INVISIBLE);
+            informationalTextView.setText(R.string.come_back_tomorrow);
+            informationalTextView.setVisibility(View.VISIBLE);
         } else {
             addEntryButton.setVisibility(View.VISIBLE);
+            if (!diaryEntries.isEmpty()) {
+                informationalTextView.setVisibility(View.GONE);
+            }
         }
     }
 
