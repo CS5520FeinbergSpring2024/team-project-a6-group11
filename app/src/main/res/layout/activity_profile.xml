@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -10,35 +9,50 @@
         android:id="@+id/profileToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:titleTextColor="?attr/colorOnPrimary"
-        app:theme="@style/ThemeOverlay.MaterialComponents.Toolbar.Primary" />
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:theme="@style/ThemeOverlay.MaterialComponents.Toolbar.Primary"
+        app:titleTextColor="?attr/colorOnPrimary" />
 
     <TextView
         android:id="@+id/textViewUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginTop="50dp"
+        android:layout_margin="10dp"
         android:textAlignment="center"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/imageViewProfilePic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileToolbar"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageView
         android:id="@+id/imageViewProfilePic"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
         android:contentDescription="@string/profile_picture"
-        android:src="@drawable/default_profile_pic" />
+        android:src="@drawable/default_profile_pic"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEditProfile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewUsername" />
 
     <Button
         android:id="@+id/buttonEditProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:text="@string/edit_username" />
+        android:layout_margin="10dp"
+        android:text="@string/edit_username"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewProfilePic" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
