@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -245,5 +246,14 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
     protected void onResume() {
         super.onResume();
         MainActivity.checkIfAutoTimeEnabled(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
