@@ -48,6 +48,7 @@ public class HomepageActivity extends AppCompatActivity {
                     try {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
                         startActivity(intent);
+                        System.exit(0);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(this, "Could not find an app to open the Spotify website.", Toast.LENGTH_SHORT).show();
                     }

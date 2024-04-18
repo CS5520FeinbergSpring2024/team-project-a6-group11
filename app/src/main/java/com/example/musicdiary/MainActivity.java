@@ -146,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideProgressUI() {
-        progressBar.setVisibility(View.INVISIBLE);
-        loginTextView.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
+        loginTextView.setVisibility(View.GONE);
     }
 
     public void openLoginPage(View view) {
