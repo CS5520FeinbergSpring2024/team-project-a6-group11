@@ -2,9 +2,13 @@ package com.example.musicdiary;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 public class HomepageActivity extends AppCompatActivity {
     @Override
@@ -32,6 +36,24 @@ public class HomepageActivity extends AppCompatActivity {
     public void startMessagesActivity(View view) {
         Intent intent = new Intent(this, MessagesActivity.class);
         startActivity(intent);
+    }
+
+    public void logout(View view) {
+        new AlertDialog.Builder(this)
+                .setTitle("Spotify Redirect")
+                .setMessage("You will be redirected to the Spotify website to log out. To log back in to Music Diary, please return to the app.")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    String logoutURL = "https://open.spotify.com/logout";
+
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(this, "Could not find an app to open the Spotify website.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     @Override
