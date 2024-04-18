@@ -28,7 +28,8 @@
         <activity
             android:name=".SearchMusicActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="adjustNothing"
+            android:parentActivityName=".SingleEntryActivity"/>
         <activity
             android:name=".ProfileActivity"
             android:exported="false"

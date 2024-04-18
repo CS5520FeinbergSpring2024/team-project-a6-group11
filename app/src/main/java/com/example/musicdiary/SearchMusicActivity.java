@@ -2,6 +2,7 @@ package com.example.musicdiary;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -10,8 +11,8 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,10 +53,18 @@ public class SearchMusicActivity extends AppCompatActivity implements View.OnCli
         accessToken = MainActivity.accessToken;
         client = new OkHttpClient();
 
+        Toolbar searchMusicToolbar = findViewById(R.id.searchMusicToolbar);
+        searchMusicToolbar.setTitle("Search Music");
+        setSupportActionBar(searchMusicToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         editTextSearch = findViewById(R.id.editTextSearch);
         editTextSearch.setOnKeyListener(this::onClickEditTextSearch);
-        Button buttonSearch = findViewById(R.id.buttonSearch);
-        buttonSearch.setOnClickListener(view -> onClickSearch());
+        ImageButton searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(view -> onClickSearch());
 
         fragmentManager = getSupportFragmentManager();
 
