@@ -346,7 +346,7 @@ public class SingleEntryActivity extends AppCompatActivity {
                                     extraTextView.setText(textPost);
                                     postTextCardView.setVisibility(View.VISIBLE);
                                 } else {
-                                    postTextCardView.setVisibility(View.INVISIBLE);
+                                    postTextCardView.setVisibility(View.GONE);
                                 }
 
                                 mood = newMood;
@@ -486,8 +486,7 @@ public class SingleEntryActivity extends AppCompatActivity {
     }
 
     private void loadAlbumImage(String imageURL) {
-        Picasso.get().load(imageURL).into(new Target() {
-
+        Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 albumImageView.setBackground(new BitmapDrawable(getResources(), bitmap));
@@ -502,7 +501,11 @@ public class SingleEntryActivity extends AppCompatActivity {
             public void onPrepareLoad(Drawable placeHolderDrawable) {
 
             }
-        });
+        };
+
+        albumImageView.setTag(target);
+
+        Picasso.get().load(imageURL).into(target);
     }
 
     public void onClickAlbumCover(View view) {

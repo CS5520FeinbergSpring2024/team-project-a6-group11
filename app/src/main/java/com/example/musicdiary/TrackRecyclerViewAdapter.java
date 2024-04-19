@@ -57,24 +57,27 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
         String trackIconURL = trackItems.get(position).trackIconURL;
 
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                holder.playButton.setBackground(new BitmapDrawable(context.getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
+
+        holder.playButton.setTag(target); // to ensure the image is loaded properly by creating a strong target reference
+
         if (trackIconURL != null) {
-            Picasso.get().load(trackIconURL).into(new Target() {
-
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    holder.playButton.setBackground(new BitmapDrawable(context.getResources(), bitmap));
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            });
+            Picasso.get().load(trackIconURL).into(target);
         }
 
         int currentPosition = holder.getAdapterPosition();
