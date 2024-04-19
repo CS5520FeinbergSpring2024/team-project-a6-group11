@@ -34,10 +34,10 @@ stored using Firebase Realtime Database, which is also used to store received di
 
 ## Test accounts:
 
-Music Diary username: musicdiaryuser1
-Email: musicdiaryuser1@outlook.com
-Password: sugarforthepill1^
+* Email: musicdiaryuser1@outlook.com  
+  Password: sugarforthepill1^  
+  App username: musicdiaryuser1
 
-Music Diary username: musicdiaryuser2
-Email: musicdiaryuser2@outlook.com
-Password: thescientist1^
+* Email: musicdiaryuser2@outlook.com  
+  Password: thescientist1^  
+  App username: musicdiaryuser2
