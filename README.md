@@ -4,7 +4,15 @@ Music Diary is an Android app for creatives and music lovers to document the mus
 allowing its users to create unique music diary entries for each day. Music Diary is integrated with
 the Spotify Web API and Spotify’s Android SDK to allow users to log in or register with Spotify,
 search for music to use in diary entries, and listen to songs/tracks from Spotify. Diary entries are
-stored using Firebase Realtime Database, which is also used to store received diary messages.
+stored using Firebase Realtime Database - one of the main technologies used in our app that also 
+enables our users to send and receive diary messages.
+
+## Team members:
+
+* Jeffrey Chin
+* Ledi Li
+* Michael Lappas
+* Zhou Liu
 
 ## Features:
 
