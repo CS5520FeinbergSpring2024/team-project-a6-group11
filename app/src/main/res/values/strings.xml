@@ -33,6 +33,7 @@
     <string name="log_out">Log out</string>
     <string name="music_diary">Music Diary</string>
     <string name="app_icon">App Icon</string>
+    <string name="you_can_only_edit_today_s_entry">You can only edit today\'s entry.</string>
     <string-array name="spinner_items">
         <item>None</item>
         <item>I\'m feeling good</item>

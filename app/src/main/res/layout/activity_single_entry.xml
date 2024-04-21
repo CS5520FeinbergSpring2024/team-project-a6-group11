@@ -138,7 +138,16 @@
                 android:layout_margin="20dp"
                 android:onClick="onClickUpdateEntry"
                 android:text="@string/edit"
-                android:visibility="invisible" />
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/cannotEditTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/you_can_only_edit_today_s_entry"
+                android:textAlignment="center"
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>

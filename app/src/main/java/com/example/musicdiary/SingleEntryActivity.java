@@ -102,6 +102,8 @@ public class SingleEntryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.diaryToolbar);
         setSupportActionBar(toolbar);
 
+        TextView cannotEditTextView = findViewById(R.id.cannotEditTextView);
+
         String openedEntryAuthorID = getIntent().getStringExtra("openedEntryAuthorID");
         String openedEntryDate = getIntent().getStringExtra("openedEntryDate");
         trackName = getIntent().getStringExtra("openedEntryTrackName");
@@ -130,6 +132,10 @@ public class SingleEntryActivity extends AppCompatActivity {
                     if (localDate.equals(openedEntryLocalDate)) {
                         if ((openedEntryAuthorID != null && openedEntryAuthorID.equals(MainActivity.userid)) || sharedDiaryReference != null) { // If not in the shared diary, user IDs must match to update
                             updateButton.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        if ((openedEntryAuthorID != null && openedEntryAuthorID.equals(MainActivity.userid)) || sharedDiaryReference != null) {
+                            cannotEditTextView.setVisibility(View.VISIBLE);
                         }
                     }
                 } catch (DateTimeParseException ignored) {
