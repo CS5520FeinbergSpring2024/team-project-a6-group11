@@ -41,9 +41,9 @@ public class HomepageActivity extends AppCompatActivity {
     public void logout(View view) {
         new AlertDialog.Builder(this)
                 .setTitle("Spotify Redirect")
-                .setMessage("You will be redirected to log out of your browser account. To log back in to Music Diary, you will need to navigate back to the app.")
+                .setMessage("You will be redirected to the Spotify website to log out. To log back in to Music Diary, you will need to navigate back to the app.")
                 .setPositiveButton("OK", (dialog, which) -> {
-                    String logoutURL = "https://spotify.com/logout";
+                    String logoutURL = "https://accounts.spotify.com";
 
                     try {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
